@@ -24,7 +24,7 @@ export default function Vmc() {
         <SectionHeading
           tag="05 · Flagship Programme"
           title="Building a Vertical Machining Center, in-house"
-          intro="Leading the complete development of a VMC — from first concept sketch to a fatigue-validated machine structure. Every phase is simulation-driven."
+          intro="Leading the complete development of a VMC, from first concept sketch to a fatigue-validated machine structure. Every phase is simulation-driven."
         />
 
         {/* KPI strip */}
@@ -88,11 +88,11 @@ export default function Vmc() {
               </div>
               <div className="flex flex-col justify-center border-t border-line/60 pt-8 md:border-l md:border-t-0 md:pl-10 md:pt-0">
                 <p className="font-display text-2xl font-medium leading-snug">
-                  “Machine stiffness, reliability and long-term performance — proven in
+                  “Machine stiffness, reliability and long-term performance, proven in
                   simulation before a single chip is cut.”
                 </p>
                 <div className="mt-4 font-mono text-xs text-faint">
-                  — DESIGN PHILOSOPHY, VMC PROGRAMME
+                  DESIGN PHILOSOPHY · VMC PROGRAMME
                 </div>
               </div>
             </div>

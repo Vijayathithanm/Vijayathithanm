@@ -26,7 +26,7 @@ export default function Publications() {
         <SectionHeading
           tag="06 · Research Output"
           title="Publications & talks"
-          intro="Peer-reviewed research in Wear, IJAMT and Proc. IMechE — presented at ASME IMECE, Wear of Materials, and MATADOR."
+          intro="Peer-reviewed research in Wear, IJAMT and Proc. IMechE, presented at ASME IMECE, Wear of Materials, and MATADOR."
         />
 
         <Reveal className="mb-8 flex flex-wrap gap-2">

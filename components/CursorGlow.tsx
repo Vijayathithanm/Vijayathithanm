@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 
-/** Soft radial glow that follows the pointer — GPU-accelerated, desktop only. */
+/** Soft radial glow that follows the pointer; GPU-accelerated, desktop only. */
 export default function CursorGlow() {
   const ref = useRef<HTMLDivElement>(null);
 

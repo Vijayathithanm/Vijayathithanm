@@ -32,7 +32,7 @@ export default function SectionHeading({ tag, title, intro, align = 'left' }: Pr
         <span className="mr-3 inline-block h-px w-8 translate-y-[-3px] bg-accent align-middle" />
         {tag}
       </motion.p>
-      {/* Viewport detection lives on the h2 — the word spans are clipped by
+      {/* Viewport detection lives on the h2; the word spans are clipped by
           overflow-hidden and would never intersect on their own. */}
       <motion.h2
         initial="hidden"

@@ -31,7 +31,7 @@ export default function Skills() {
       <SectionHeading
         tag="07 · Capabilities"
         title="A full-stack engineering toolkit"
-        intro="From multiphysics solvers to machine-learning pipelines — proficiency built through doctoral research and industrial R&D."
+        intro="From multiphysics solvers to machine-learning pipelines, with proficiency built through doctoral research and industrial R&D."
       />
 
       <div className="grid items-start gap-12 lg:grid-cols-[1fr_1.4fr]">

@@ -15,7 +15,7 @@ export default function Contact() {
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const subject = encodeURIComponent(`Portfolio enquiry from ${form.name}`);
-    const body = encodeURIComponent(`${form.message}\n\n— ${form.name} (${form.email})`);
+    const body = encodeURIComponent(`${form.message}\n\nFrom: ${form.name} (${form.email})`);
     window.location.href = `mailto:${profile.email}?subject=${subject}&body=${body}`;
     setSent(true);
     setTimeout(() => setSent(false), 4000);

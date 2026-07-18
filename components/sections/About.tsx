@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Atom, Cog, Cpu, FlaskConical } from 'lucide-react';
 import { applicationAreas, profile, stats } from '@/content/resume';
 import CountUp from '@/components/ui/CountUp';
+import Portrait from '@/components/ui/Portrait';
 import Reveal from '@/components/ui/Reveal';
 import SectionHeading from '@/components/ui/SectionHeading';
 
@@ -16,7 +17,7 @@ const pillars = [
   {
     icon: Cog,
     title: 'Machine Development',
-    desc: 'In-house VMC from concept to realization — stiffness, dynamics, fatigue.',
+    desc: 'In-house VMC from concept to realization: stiffness, dynamics, fatigue.',
   },
   {
     icon: FlaskConical,
@@ -33,11 +34,17 @@ const pillars = [
 export default function About() {
   return (
     <section id="about" className="relative mx-auto max-w-7xl px-5 py-24 md:px-8 md:py-36">
-      <SectionHeading
-        tag="01 · About"
-        title="Engineering across physics, machines & intelligence"
-        intro={profile.summary}
-      />
+      {/* portrait + intro */}
+      <div className="mb-16 grid items-center gap-12 md:mb-20 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+        <Portrait />
+        <div>
+          <SectionHeading
+            tag="01 · About"
+            title="Engineering across physics, machines & intelligence"
+            intro={profile.summary}
+          />
+        </div>
+      </div>
 
       {/* animated statistics */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">

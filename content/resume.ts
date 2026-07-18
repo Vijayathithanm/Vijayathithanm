@@ -1,7 +1,7 @@
 /**
  * ─────────────────────────────────────────────────────────────────────────────
  *  SINGLE SOURCE OF TRUTH
- *  All site content lives here. Edit this file to update the website —
+ *  All site content lives here. Edit this file to update the website.
  *  no component changes required.
  * ─────────────────────────────────────────────────────────────────────────────
  */
@@ -20,14 +20,14 @@ export const profile = {
     'Machine Designer',
   ],
   summary:
-    'Mechanical engineer with a Ph.D. from IIT Madras, specialising in HiPIMS-based PVD coating technology, indigenous magnetron development, and multiphysics simulation. Currently leading the end-to-end development of an in-house Vertical Machining Center — from concept to realization — backed by deep expertise in finite element analysis, acoustic-emission tool prognostics, and machine learning for manufacturing.',
+    'Mechanical engineer with a Ph.D. from IIT Madras, specialising in HiPIMS-based PVD coating technology, indigenous magnetron development, and multiphysics simulation. Currently leading the end-to-end development of an in-house Vertical Machining Center, taking it from concept to realization, backed by deep expertise in finite element analysis, acoustic-emission tool prognostics, and machine learning for manufacturing.',
   location: 'Bengaluru, India',
   company: 'Addlife Coatings Pvt. Ltd.',
   email: 'mv.athithan@gmail.com',
   phone: '+91 96009 33661',
   linkedin: 'https://linkedin.com/in/vijayathithan',
   resumeFile: `${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/resume/Vijayathithan_Mathiyazhagan_CV.docx`,
-  availability: 'Open to opportunities — start time negotiable, location flexible.',
+  availability: 'Open to opportunities. Start time negotiable, location flexible.',
 };
 
 export const stats = [
@@ -58,21 +58,21 @@ export type TimelineEntry = {
 
 export const experience: TimelineEntry[] = [
   {
-    period: 'Mar 2024 — Present',
+    period: 'Mar 2024 to Present',
     title: 'Research and Development Engineer',
     org: 'Addlife Coatings Pvt. Ltd.',
     location: 'Bengaluru, India',
     kind: 'industry',
     highlights: [
-      'Executed multiphysics simulations in COMSOL for indigenous magnetron development — electromagnetic and plasma simulations, charged-particle tracing in vacuum chambers, and race-track identification on target materials.',
+      'Executed multiphysics simulations in COMSOL for indigenous magnetron development, covering electromagnetic and plasma simulations, charged-particle tracing in vacuum chambers, and race-track identification on target materials.',
       'Conducted in-depth studies on transformer magnetic flux, current density distribution, and current-leakage mitigation.',
-      'Leading the in-house development of a Vertical Machining Center (VMC) from concept to realization — structural design validation, static & dynamic analysis, accidental impact assessment, and durability/fatigue evaluation using Abaqus and fe-safe.',
+      'Leading the in-house development of a Vertical Machining Center (VMC) from concept to realization, covering structural design validation, static & dynamic analysis, accidental impact assessment, and durability/fatigue evaluation using Abaqus and fe-safe.',
       'Conducted FEA using Abaqus and AdvantEdge to evaluate tool and coating performance.',
       'Performed coating quality assessments through tribological testing, SEM analysis, and adhesion tests.',
     ],
   },
   {
-    period: 'Mar 2022 — Feb 2024',
+    period: 'Mar 2022 to Feb 2024',
     title: 'Research Associate',
     org: 'Indian Institute of Technology Madras',
     location: 'Chennai, India · Supervisor: Prof. N. Arunachalam',
@@ -96,7 +96,7 @@ export const education: TimelineEntry[] = [
     location: 'Chennai · CGPA 8.25 / 10.0',
     kind: 'education',
     highlights: [
-      'Thesis: Advanced Machining of Carbon Fiber Reinforced Polymers (CFRP) — Damage Mechanisms, Tool Wear, and Predictive Modelling.',
+      'Thesis: Advanced Machining of Carbon Fiber Reinforced Polymers (CFRP): Damage Mechanisms, Tool Wear, and Predictive Modelling.',
       'Candidacy: Predictive maintenance via AE-based online tool monitoring in composite-material machining.',
       'Adviser: Dr. Anil Meena · Area: Advanced Manufacturing Technology.',
     ],
@@ -141,9 +141,9 @@ export const projects: Project[] = [
     id: 'magnetron',
     category: 'Simulation',
     title: 'Indigenous Magnetron Development',
-    subtitle: 'COMSOL multiphysics — electromagnetics, plasma & particle tracing',
+    subtitle: 'COMSOL multiphysics: electromagnetics, plasma and particle tracing',
     problem:
-      'Developing an indigenous magnetron for PVD sputtering demands precise knowledge of magnetic field topology, plasma confinement, and target utilisation — before any metal is cut.',
+      'Developing an indigenous magnetron for PVD sputtering demands precise knowledge of magnetic field topology, plasma confinement, and target utilisation, all before any metal is cut.',
     approach: [
       'Electromagnetic field simulation of the magnetron assembly in COMSOL Multiphysics.',
       'Plasma simulation and charged-particle tracing inside the vacuum chamber.',
@@ -193,7 +193,7 @@ export const projects: Project[] = [
       'Custom-designed chamber for tribological studies in lubricated environments.',
     ],
     outcome:
-      'A complete DLC coating technology stack — deposition, characterisation, simulation, and prediction.',
+      'A complete DLC coating technology stack spanning deposition, characterisation, simulation, and prediction.',
     stack: ['Magnetron Sputtering', 'DLC', 'Abaqus', 'Python · SVM', 'Raman', 'SEM/EDX'],
     accent: 'from-emerald-500 to-cyan-600',
     visual: 'coating',
@@ -203,9 +203,9 @@ export const projects: Project[] = [
     id: 'cfrp',
     category: 'Research',
     title: 'CFRP & CFRP/Ti Stack Machining',
-    subtitle: 'Ph.D. research — damage mechanisms, tool wear & predictive modelling',
+    subtitle: 'Ph.D. research: damage mechanisms, tool wear and predictive modelling',
     problem:
-      'Drilling CFRP and CFRP/Ti stacks induces delamination, thermal damage, and rapid tool wear — the core cost drivers in aerospace assembly.',
+      'Drilling CFRP and CFRP/Ti stacks induces delamination, thermal damage, and rapid tool wear, the core cost drivers in aerospace assembly.',
     approach: [
       'Cryogenic-assisted drilling to minimise thermal damage and improve hole quality.',
       'Machining-induced damage analysis correlated with tool-wear evolution.',
@@ -224,7 +224,7 @@ export const projects: Project[] = [
     title: 'AE-Based Tool Condition Monitoring',
     subtitle: 'Real-time prognostics & digital-twin foundations',
     problem:
-      'Tool failure during composite machining is silent and expensive — operators need real-time, sensor-driven wear prediction.',
+      'Tool failure during composite machining is silent and expensive, so operators need real-time, sensor-driven wear prediction.',
     approach: [
       'Acoustic-emission sensing for online tool-condition monitoring during drilling.',
       'Signal processing with Fourier and wavelet transforms in MATLAB and Python.',
@@ -241,7 +241,7 @@ export const projects: Project[] = [
     id: 'robot',
     category: 'Robotics',
     title: 'Mobile Robot Path Planning',
-    subtitle: 'M.E. thesis — Tangent Bug Algorithm',
+    subtitle: 'M.E. thesis: Tangent Bug Algorithm',
     problem:
       'Autonomous navigation in unknown environments requires reactive path planning with minimal sensing.',
     approach: [
@@ -258,7 +258,7 @@ export const projects: Project[] = [
 export const simulations = [
   {
     title: 'Electromagnetic Simulation',
-    desc: 'Magnetic field topology of the magnetron assembly — flux density mapping across the target surface.',
+    desc: 'Magnetic field topology of the magnetron assembly, with flux-density mapping across the target surface.',
     icon: 'magnet',
   },
   {
@@ -302,7 +302,7 @@ export const vmcPhases = [
   {
     phase: '03',
     title: 'Static Analysis',
-    desc: 'Structural design validation under static load cases in Abaqus — deflection and stress across the load path.',
+    desc: 'Structural design validation under static load cases in Abaqus, resolving deflection and stress across the load path.',
   },
   {
     phase: '04',
@@ -322,7 +322,7 @@ export const vmcPhases = [
   {
     phase: '07',
     title: 'Realization',
-    desc: 'Carrying the validated design through to physical build — concept to realization, in-house.',
+    desc: 'Carrying the validated design through to physical build: concept to realization, in-house.',
   },
 ];
 
@@ -350,7 +350,7 @@ export const publications: Publication[] = [
     ref: 'J2',
     authors: 'V. Mathiyazhagan, A. Meena',
     title: 'Machining-induced damages in the drilling of CFRP under dry and cryogenic environments',
-    venue: 'International Journal of Advanced Manufacturing Technology, 134(1), 605–626',
+    venue: 'International Journal of Advanced Manufacturing Technology, 134(1), 605-626',
     year: '2024',
     type: 'journal',
   },
@@ -509,7 +509,7 @@ export const seo = {
   // Update this if the site's primary domain changes
   // (GitHub Pages: https://vijayathithanm.github.io/Vijayathithanm)
   siteUrl: 'https://vijayathithanportfolio.vercel.app',
-  title: 'Vijayathithan Mathiyazhagan — R&D Engineer · Simulation Scientist',
+  title: 'Vijayathithan Mathiyazhagan · R&D Engineer & Simulation Scientist',
   description:
     'Ph.D. (IIT Madras) mechanical engineer specialising in HiPIMS PVD coatings, indigenous magnetron development, COMSOL multiphysics simulation, VMC machine design, and AI-driven tool prognostics.',
   keywords: [
