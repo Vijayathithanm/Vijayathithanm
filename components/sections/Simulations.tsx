@@ -12,6 +12,7 @@ import {
 import { simulations } from '@/content/resume';
 import Reveal from '@/components/ui/Reveal';
 import SectionHeading from '@/components/ui/SectionHeading';
+import SimulationVisual from '@/components/ui/SimulationVisual';
 
 const iconMap: Record<string, React.ElementType> = {
   magnet: Magnet,
@@ -45,20 +46,28 @@ export default function Simulations() {
                 <motion.div
                   whileHover={{ y: -6 }}
                   transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-                  className="blueprint-card group relative h-full overflow-hidden rounded-2xl p-7"
+                  className="blueprint-card group relative flex h-full flex-col overflow-hidden rounded-2xl"
                 >
-                  {/* scan-line effect on hover */}
-                  <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
-                    <div className="animate-scan absolute inset-x-0 h-24 bg-gradient-to-b from-transparent via-accent/10 to-transparent" />
+                  {/* simulation result plot */}
+                  <div className="relative h-40 overflow-hidden border-b border-line/60">
+                    <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-[1.05]">
+                      <SimulationVisual kind={sim.icon} />
+                    </div>
+                    {/* scan-line sweep on hover */}
+                    <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+                      <div className="animate-scan absolute inset-x-0 h-24 bg-gradient-to-b from-transparent via-accent/15 to-transparent" />
+                    </div>
                   </div>
 
-                  <div className="mb-5 inline-flex rounded-xl border border-line bg-bg p-3.5 text-accent transition-all duration-500 group-hover:rotate-[360deg] group-hover:border-accent/50">
-                    <Icon size={22} strokeWidth={1.5} />
-                  </div>
-                  <h3 className="font-display text-lg font-medium">{sim.title}</h3>
-                  <p className="mt-2.5 text-sm leading-relaxed text-muted">{sim.desc}</p>
-                  <div className="mt-5 font-mono text-[10px] tracking-[0.25em] text-faint">
-                    COMSOL MULTIPHYSICS®
+                  <div className="flex flex-1 flex-col p-6">
+                    <div className="mb-4 inline-flex w-fit rounded-xl border border-line bg-bg p-3 text-accent transition-all duration-500 group-hover:rotate-[360deg] group-hover:border-accent/50">
+                      <Icon size={20} strokeWidth={1.5} />
+                    </div>
+                    <h3 className="font-display text-lg font-medium">{sim.title}</h3>
+                    <p className="mt-2.5 flex-1 text-sm leading-relaxed text-muted">{sim.desc}</p>
+                    <div className="mt-5 font-mono text-[10px] tracking-[0.25em] text-faint">
+                      COMSOL MULTIPHYSICS®
+                    </div>
                   </div>
                 </motion.div>
               </Reveal>
