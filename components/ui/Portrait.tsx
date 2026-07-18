@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { asset } from '@/lib/utils';
 import { profile } from '@/content/resume';
@@ -10,9 +10,26 @@ import { profile } from '@/content/resume';
  * once it has actually loaded, so before public/images/profile.jpg is added
  * the card looks intentional (no broken-image icon), and the photo fades in
  * the moment it exists.
+ *
+ * On a static export the browser can finish loading the image from the initial
+ * HTML before React attaches its onLoad handler, so we also check img.complete
+ * on mount, otherwise the reveal would never fire for a cached/preloaded image.
  */
 export default function Portrait() {
+  const imgRef = useRef<HTMLImageElement>(null);
   const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    const img = imgRef.current;
+    if (!img) return;
+    if (img.complete) {
+      if (img.naturalWidth > 0) setLoaded(true);
+      else setFailed(true);
+    }
+  }, []);
+
+  const showPhoto = loaded && !failed;
 
   return (
     <motion.div
@@ -42,11 +59,13 @@ export default function Portrait() {
           {/* photo fades in over the monogram only on successful load */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
+            ref={imgRef}
             src={asset('/images/profile.jpg')}
             alt={`Portrait of ${profile.name}`}
             onLoad={() => setLoaded(true)}
+            onError={() => setFailed(true)}
             className="absolute inset-0 h-full w-full object-cover transition-opacity duration-700"
-            style={{ opacity: loaded ? 1 : 0 }}
+            style={{ opacity: showPhoto ? 1 : 0 }}
           />
 
           {/* bottom gradient for the caption chip legibility */}
