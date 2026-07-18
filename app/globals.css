@@ -1,0 +1,182 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Dark theme (default) — deep engineering navy/black */
+  --bg: 4 7 15;
+  --surface: 9 13 24;
+  --card: 15 21 36;
+  --line: 36 46 68;
+  --ink: 232 238 248;
+  --muted: 148 163 184;
+  --faint: 100 116 139;
+  --accent: 34 211 238; /* cyan */
+  --accent2: 96 165 250; /* blue */
+  --plasma: 192 132 252; /* violet */
+}
+
+.light {
+  --bg: 248 250 252;
+  --surface: 255 255 255;
+  --card: 255 255 255;
+  --line: 226 232 240;
+  --ink: 15 23 42;
+  --muted: 71 85 105;
+  --faint: 100 116 139;
+  --accent: 8 145 178;
+  --accent2: 37 99 235;
+  --plasma: 147 51 234;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+body {
+  @apply bg-bg text-ink antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgb(var(--accent) / 0.25);
+  color: rgb(var(--ink));
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: rgb(var(--bg));
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--line));
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--faint));
+}
+
+/* ── Engineering grid background ───────────────────────────── */
+.eng-grid {
+  background-image:
+    linear-gradient(rgb(var(--line) / 0.25) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--line) / 0.25) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.eng-grid-fine {
+  background-image:
+    linear-gradient(rgb(var(--line) / 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--line) / 0.14) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+/* ── Blueprint corner ticks on cards ───────────────────────── */
+.blueprint-card {
+  position: relative;
+  background: rgb(var(--card) / 0.66);
+  border: 1px solid rgb(var(--line) / 0.7);
+  backdrop-filter: blur(12px);
+  transition: border-color 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease;
+}
+.blueprint-card::before,
+.blueprint-card::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: rgb(var(--accent) / 0);
+  transition: border-color 0.4s ease;
+  pointer-events: none;
+}
+.blueprint-card::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid;
+  border-left: 2px solid;
+  border-color: inherit;
+}
+.blueprint-card::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid;
+  border-right: 2px solid;
+  border-color: inherit;
+}
+.blueprint-card:hover {
+  border-color: rgb(var(--accent) / 0.45);
+  box-shadow: 0 0 40px rgb(var(--accent) / 0.08);
+}
+.blueprint-card:hover::before,
+.blueprint-card:hover::after {
+  border-color: rgb(var(--accent) / 0.9);
+}
+
+/* ── Glass panel ───────────────────────────────────────────── */
+.glass {
+  background: rgb(var(--surface) / 0.6);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgb(var(--line) / 0.6);
+}
+
+/* ── Text gradient ─────────────────────────────────────────── */
+.text-gradient {
+  background: linear-gradient(
+    100deg,
+    rgb(var(--ink)) 20%,
+    rgb(var(--accent)) 50%,
+    rgb(var(--accent2)) 75%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientX 8s ease infinite;
+}
+
+@keyframes gradientX {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* ── Glow orb ──────────────────────────────────────────────── */
+.glow-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(120px);
+  pointer-events: none;
+}
+
+/* ── Section number tag ────────────────────────────────────── */
+.section-tag {
+  @apply font-mono text-xs tracking-[0.3em] uppercase text-accent;
+}
+
+/* ── Reduced motion ────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
