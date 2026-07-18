@@ -7,7 +7,7 @@ import { profile } from '@/content/resume';
 
 /**
  * Framed portrait. Renders the monogram by default and only reveals the photo
- * once it has actually loaded — so before public/images/profile.jpg is added
+ * once it has actually loaded, so before public/images/profile.jpg is added
  * the card looks intentional (no broken-image icon), and the photo fades in
  * the moment it exists.
  */
@@ -39,7 +39,7 @@ export default function Portrait() {
             </div>
           </div>
 
-          {/* photo — fades in over the monogram only on successful load */}
+          {/* photo fades in over the monogram only on successful load */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={asset('/images/profile.jpg')}

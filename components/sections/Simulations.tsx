@@ -34,7 +34,7 @@ export default function Simulations() {
         <SectionHeading
           tag="04 · COMSOL Multiphysics"
           title="Simulation is the first prototype"
-          intro="Multiphysics models built for the indigenous magnetron programme — from electromagnetic field topology to plasma behaviour and target erosion."
+          intro="Multiphysics models built for the indigenous magnetron programme, spanning electromagnetic field topology, plasma behaviour, and target erosion."
         />
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

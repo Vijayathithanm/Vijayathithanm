@@ -24,7 +24,7 @@ export default function Timeline() {
         <SectionHeading
           tag="02 · Journey"
           title="Professional & academic timeline"
-          intro="Industry R&D, defence-grade research at IIT Madras, and a decade of engineering education — one continuous trajectory."
+          intro="Industry R&D, defence-grade research at IIT Madras, and a decade of engineering education: one continuous trajectory."
         />
 
         <div className="relative">

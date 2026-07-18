@@ -57,7 +57,7 @@ export default function Hero() {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
           </span>
-          PH.D. · IIT MADRAS — OPEN TO OPPORTUNITIES
+          PH.D. · IIT MADRAS · OPEN TO OPPORTUNITIES
         </motion.div>
 
         <h1 className="font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl md:text-7xl xl:text-8xl">
@@ -96,7 +96,7 @@ export default function Hero() {
           className="mt-6 max-w-2xl text-base leading-relaxed text-muted md:text-lg"
         >
           {profile.tagline}. Engineering machines, coatings and simulations at{' '}
-          <span className="text-ink">{profile.company}</span> — from plasma physics to fatigue
+          <span className="text-ink">{profile.company}</span>, from plasma physics to fatigue
           life.
         </motion.p>
 

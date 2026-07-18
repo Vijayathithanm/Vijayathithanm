@@ -17,7 +17,7 @@ const pillars = [
   {
     icon: Cog,
     title: 'Machine Development',
-    desc: 'In-house VMC from concept to realization — stiffness, dynamics, fatigue.',
+    desc: 'In-house VMC from concept to realization: stiffness, dynamics, fatigue.',
   },
   {
     icon: FlaskConical,

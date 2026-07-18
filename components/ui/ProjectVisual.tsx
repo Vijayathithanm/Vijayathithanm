@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Custom animated SVG schematics — one per project. Drawn as engineering
+ * Custom animated SVG schematics, one per project. Drawn as engineering
  * blueprints so every card feels custom-built, no stock imagery.
  */
 
