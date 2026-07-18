@@ -3,17 +3,17 @@
 @tailwind utilities;
 
 :root {
-  /* Dark theme (default) — deep engineering navy/black */
-  --bg: 4 7 15;
-  --surface: 9 13 24;
-  --card: 15 21 36;
-  --line: 36 46 68;
-  --ink: 232 238 248;
-  --muted: 148 163 184;
-  --faint: 100 116 139;
-  --accent: 34 211 238; /* cyan */
-  --accent2: 96 165 250; /* blue */
-  --plasma: 192 132 252; /* violet */
+  /* Dark theme (default) — lifted engineering slate-navy (softer, less black) */
+  --bg: 16 21 34;
+  --surface: 24 31 48;
+  --card: 32 41 61;
+  --line: 54 66 92;
+  --ink: 238 243 251;
+  --muted: 173 185 203;
+  --faint: 128 142 164;
+  --accent: 45 212 240; /* cyan */
+  --accent2: 112 168 252; /* blue */
+  --plasma: 196 140 252; /* violet */
 }
 
 .light {
