@@ -1,0 +1,33 @@
+name: MagnetFlux Studio CI
+
+on:
+  push:
+    paths:
+      - "MagnetFluxStudio/**"
+      - ".github/workflows/magnetflux-ci.yml"
+  pull_request:
+    paths:
+      - "MagnetFluxStudio/**"
+      - ".github/workflows/magnetflux-ci.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: MagnetFluxStudio
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install core + dev dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy scipy pytest pytest-cov
+      - name: Run test suite (numerical core)
+        run: pytest -q --cov=magnetflux --cov-report=term-missing

@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "magnetflux-studio"
+version = "0.1.0"
+description = "Desktop magnetostatic simulation tool for magnetron cathodes"
+requires-python = ">=3.11"
+authors = [{ name = "MagnetFlux Studio" }]
+readme = "README.md"
+dependencies = [
+    "numpy>=1.26",
+    "scipy>=1.11",
+]
+
+# Optional feature groups. The numerical core runs on numpy+scipy alone so
+# that it stays importable and unit-testable in headless environments.
+[project.optional-dependencies]
+gui = ["PySide6>=6.6", "pyvista>=0.43", "vtk>=9.2"]
+cad = ["gmsh>=4.11"]           # pythonOCC (pythonocc-core) via conda-forge
+fem = ["scikit-fem>=9.0"]      # pure-Python FEM backend (Windows-friendly)
+report = ["reportlab>=4.0", "matplotlib>=3.8"]
+dev = ["pytest>=7.4", "pytest-cov>=4.1"]
+all = ["magnetflux-studio[gui,cad,fem,report,dev]"]
+
+[project.scripts]
+magnetflux = "magnetflux.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["magnetflux*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

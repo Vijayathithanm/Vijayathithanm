@@ -1,0 +1,11 @@
+# Core numerical dependencies (always required)
+numpy>=1.26
+scipy>=1.11
+
+# Optional groups -- install via extras, e.g.  pip install -e .[gui,fem,report,dev]
+#
+# GUI / visualization (M1, M4):   PySide6>=6.6  pyvista>=0.43  vtk>=9.2
+# CAD import & meshing (M1, M3):   gmsh>=4.11    pythonocc-core (conda-forge)
+# FEM backend (M3):                scikit-fem>=9.0
+# Reporting (M5):                  reportlab>=4.0  matplotlib>=3.8
+# Development:                     pytest>=7.4   pytest-cov>=4.1
