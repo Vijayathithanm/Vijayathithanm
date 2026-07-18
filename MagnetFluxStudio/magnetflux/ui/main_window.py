@@ -24,8 +24,11 @@ from magnetflux.core.jobs import Job
 from magnetflux.core.project import Project
 from magnetflux.core.units import LengthUnit
 from magnetflux.logging_setup import get_logger
+from magnetflux.materials.database import AssignmentTable, MaterialDatabase
+from magnetflux.materials.database import materials_from_section, materials_to_section
 from magnetflux.ui.log_panel import LogPanel
 from magnetflux.ui.model_tree_widget import ModelTreeWidget
+from magnetflux.ui.property_panel import PropertyPanel
 from magnetflux.ui.viewport import Viewport
 
 log = get_logger("ui.main_window")
@@ -39,6 +42,8 @@ class MainWindow(QMainWindow):
         self._config = config
         self._project = Project()
         self._import_job: Job | None = None
+        self._material_db = MaterialDatabase()
+        self._assignments = AssignmentTable()
 
         self.setWindowTitle("MagnetFlux Studio")
         self.resize(1280, 800)
@@ -48,7 +53,12 @@ class MainWindow(QMainWindow):
 
         self._tree_widget = ModelTreeWidget(self)
         self._tree_widget.visibility_changed.connect(self._viewport.set_body_visible)
+        self._tree_widget.body_selected.connect(self._on_body_selected)
         self._add_dock("Model Tree", self._tree_widget, Qt.LeftDockWidgetArea)
+
+        self._property_panel = PropertyPanel(self._material_db, self._assignments, self)
+        self._property_panel.assignment_changed.connect(self._on_assignment_changed)
+        self._add_dock("Properties", self._property_panel, Qt.RightDockWidgetArea)
 
         self._log_panel = LogPanel(self)
         self._add_dock("Log", self._log_panel, Qt.BottomDockWidgetArea)
@@ -84,8 +94,17 @@ class MainWindow(QMainWindow):
 
     def _new_project(self) -> None:
         self._project = Project()
+        self._assignments = AssignmentTable()
+        self._material_db = MaterialDatabase()
         self._refresh_views()
         self.statusBar().showMessage("New project")
+
+    def _on_body_selected(self, body_id: int) -> None:
+        self._property_panel.show_body(body_id)
+
+    def _on_assignment_changed(self, body_id: int, assignment) -> None:
+        # Keep the model tree's material_id in sync for colouring/queries.
+        self._project.model_tree.assign_material(body_id, assignment.material_id)
 
     def _import_cad_dialog(self) -> None:
         patterns = " ".join(f"*{e}" for e in sorted(SUPPORTED_EXTENSIONS))
@@ -135,6 +154,9 @@ class MainWindow(QMainWindow):
             return
         try:
             self._project = Project.load(path)
+            section = self._project.sections.get("materials")
+            if section:
+                self._material_db, self._assignments = materials_from_section(section)
         except Exception as exc:  # noqa: BLE001 - surfaced to user
             QMessageBox.critical(self, "Open failed", str(exc))
             return
@@ -149,6 +171,9 @@ class MainWindow(QMainWindow):
             return
         if not path.endswith(PROJECT_FILE_EXTENSION):
             path += PROJECT_FILE_EXTENSION
+        self._project.sections["materials"] = materials_to_section(
+            self._material_db, self._assignments
+        )
         try:
             self._project.save(path)
         except Exception as exc:  # noqa: BLE001 - surfaced to user
@@ -159,6 +184,7 @@ class MainWindow(QMainWindow):
     # -- view refresh ----------------------------------------------------- #
 
     def _refresh_views(self) -> None:
+        self._property_panel.set_context(self._material_db, self._assignments)
         self._tree_widget.set_model_tree(self._project.model_tree)
         self._viewport.render_tree(self._project.model_tree)
 
