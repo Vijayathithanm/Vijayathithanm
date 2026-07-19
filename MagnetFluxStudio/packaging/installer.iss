@@ -14,6 +14,7 @@ AppVersion={#AppVersion}
 AppPublisher={#AppPublisher}
 DefaultDirName={autopf}\{#AppName}
 DefaultGroupName={#AppName}
+OutputDir=..\dist
 OutputBaseFilename=MagnetFluxStudio-{#AppVersion}-setup
 Compression=lzma2
 SolidCompression=yes

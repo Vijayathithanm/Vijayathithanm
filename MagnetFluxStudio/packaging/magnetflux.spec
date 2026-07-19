@@ -8,7 +8,15 @@
 # toolchain is required -- this is why scikit-fem was chosen over FEniCSx.
 
 # -*- mode: python ; coding: utf-8 -*-
-from PyInstaller.utils.hooks import collect_submodules, collect_data_files
+import os
+
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules
+
+# Resolve paths relative to this spec file so the build works from any CWD.
+project_root = os.path.dirname(SPECPATH)
+entry_script = os.path.join(project_root, "magnetflux", "__main__.py")
+icon_path = os.path.join(project_root, "resources", "magnetflux.ico")
+icon = icon_path if os.path.exists(icon_path) else None  # optional icon
 
 block_cipher = None
 
@@ -22,8 +30,8 @@ hiddenimports = (
 datas = collect_data_files("pyvista") + collect_data_files("vtkmodules")
 
 a = Analysis(
-    ["../magnetflux/__main__.py"],
-    pathex=["."],
+    [entry_script],
+    pathex=[project_root],
     binaries=[],
     datas=datas,
     hiddenimports=hiddenimports,
@@ -48,7 +56,7 @@ exe = EXE(
     strip=False,
     upx=True,
     console=False,
-    icon="../resources/magnetflux.ico",
+    icon=icon,
 )
 coll = COLLECT(
     exe,
