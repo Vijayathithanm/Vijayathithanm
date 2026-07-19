@@ -23,6 +23,7 @@ block_cipher = None
 hiddenimports = (
     collect_submodules("skfem")
     + collect_submodules("pyvista")
+    + collect_submodules("pyvistaqt")
     + collect_submodules("vtkmodules")
     + collect_submodules("scipy")
 )
