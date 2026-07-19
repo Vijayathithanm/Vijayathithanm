@@ -23,7 +23,7 @@ visualization, race-track (erosion) prediction, and optimization.
 ```
 magnetflux/
   core/           domain model: geometry, model tree, units, project (.mfx), jobs
-  cad/            STEP / IGES / STL import (pythonOCC)
+  cad/            STEP / IGES / STL import (Gmsh; pythonOCC if available)
   materials/      magnet grades, nonlinear soft-iron B-H, magnetization
   solver/         analytic + scikit-fem A-formulation backends, air domain, mesh
   visualization/  contours, streamlines, glyphs, slices, probes, export
@@ -43,7 +43,8 @@ pip install -e .            # numerical core (numpy, scipy)
 pip install -e .[all]       # full app: GUI, CAD, FEM, reporting, dev tools
 ```
 
-pythonOCC (`pythonocc-core`) is installed via conda-forge; see
+STEP/IGES import works out of the box via Gmsh (included in `.[all]` / `.[cad]`);
+pythonOCC (`pythonocc-core`, higher-fidelity, conda-only) is used if present. See
 `docs/ARCHITECTURE.md` for platform notes.
 
 ## Running
