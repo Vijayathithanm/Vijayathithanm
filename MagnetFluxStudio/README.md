@@ -64,7 +64,7 @@ pytest                # numerical core is fully testable without GUI/FEM libs
 - [x] **M0** Architecture foundations — units, project schema, logging, jobs, solver interfaces, CI
 - [x] **M1** Foundation & 3D viewer — STEP/IGES/STL import, model tree, camera
 - [x] **M2** Materials & magnetization — grades, nonlinear iron, direction editor
-- [ ] **M3** Magnetostatic solver — air domain, mesh, analytic + scikit-fem A-formulation
+- [x] **M3** Magnetostatic solver — air domain, mesh, analytic + scikit-fem A-formulation
 - [ ] **M4** Visualization — contours, streamlines, glyphs, slices, probes; PNG/CSV/VTK export
 - [ ] **M5** Race-track prediction — erosion model, heatmap, PDF report
 - [ ] **M6** Optimization & release — spacing/pole optimizers, Windows installer
