@@ -149,7 +149,8 @@ class MainWindow(QMainWindow):
     # -- solve & visualize ------------------------------------------------ #
 
     def _current_quantity(self) -> FieldQuantity:
-        return self._quantity_combo.currentData()
+        # Qt may return the str value for a str-enum; coerce back to the enum.
+        return FieldQuantity(self._quantity_combo.currentData())
 
     def _solve_field(self) -> None:
         bbox = self._project.model_tree.bounding_box()

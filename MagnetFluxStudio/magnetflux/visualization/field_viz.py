@@ -19,6 +19,7 @@ def structured_field_to_pyvista(field: StructuredField, quantity: FieldQuantity)
     """Build a PyVista StructuredGrid from a sampled field with named arrays."""
     import pyvista as pv
 
+    quantity = FieldQuantity(quantity)  # tolerate a str from Qt combo data
     nx, ny, nz = field.dims
     pts = field.points.reshape(nx, ny, nz, 3)
     grid = pv.StructuredGrid()
