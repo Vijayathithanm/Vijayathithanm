@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import numpy as np
 
+from magnetflux.config import MU_0
 from magnetflux.core.model_tree import ModelTree
 from magnetflux.materials.database import AssignmentTable, MaterialDatabase
 
@@ -35,14 +36,17 @@ def build_magnet_sources(
         if a is None or not db.has(a.material_id):
             continue
         mat = db.get(a.material_id)
-        if not mat.is_magnet or a.magnetization is None:
+        if a.magnetization is None:
+            continue
+        br = a.effective_remanence(mat)  # user Br override, else material Br(T)
+        if br <= 0.0:
             continue
 
         bbox = body.bounding_box()
         center = bbox.center
-        magnitude = mat.magnetization_magnitude(a.temperature_c)
-        # Uniform-direction magnetisation at the body centre (radial magnets use
-        # the FEM backend; the charge model handles uniform/axial/diametric).
+        magnitude = br / MU_0
+        # Magnetisation points to North (the direction vector the user gives);
+        # evaluated at the body centre (radial magnets use the FEM backend).
         direction = a.magnetization.direction_at(center[None, :])[0]
         sources.append(
             {
