@@ -60,3 +60,18 @@ the `Output` folder.
 
 `.github/workflows/magnetflux-ci.yml` runs the test suite (core + FEM +
 rendering) on Python 3.11 and 3.12 for every change under `MagnetFluxStudio/`.
+
+## Getting the installable file without a local build
+
+`.github/workflows/magnetflux-build.yml` builds the Windows executable and
+installer on a `windows-latest` runner. To download a build:
+
+1. Open the repo's **Actions** tab → **MagnetFlux Studio Windows Build**.
+2. Pick the latest successful run (they trigger on pushes to `main` that touch
+   `MagnetFluxStudio/`, or run it manually via **Run workflow**).
+3. Download the artifacts at the bottom of the run page:
+   - **MagnetFluxStudio-installer** — the `MagnetFluxStudio-<version>-setup.exe`.
+   - **MagnetFluxStudio-portable** — the no-install app folder.
+
+Pushing a tag named `magnetflux-v*` (e.g. `magnetflux-v0.6.0`) additionally
+attaches the installer to a GitHub Release.
