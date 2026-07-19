@@ -57,6 +57,14 @@ class MagnetizationSpec:
         # ``is`` comparisons in direction_at and ``.value`` in to_dict work.
         self.mode = MagnetizationMode(self.mode)
 
+    @classmethod
+    def north(cls, direction: tuple[float, float, float]) -> "MagnetizationSpec":
+        """Uniform magnetisation whose ``direction`` points to the North pole.
+
+        e.g. ``north((1, 0, 0))`` orients the magnet's North along +X.
+        """
+        return cls(mode=MagnetizationMode.UNIFORM, direction=direction)
+
     def direction_at(self, points: np.ndarray) -> np.ndarray:
         """Return ``(N, 3)`` unit magnetisation directions at ``points`` [m]."""
         pts = np.asarray(points, dtype=float).reshape(-1, 3)

@@ -119,6 +119,34 @@ def test_assignment_vector_none_for_non_magnet():
     assert table.magnetization_vector(2, db, np.array([[0, 0, 0]])) is None
 
 
+def test_north_direction_sets_magnetization_along_axis():
+    # north((1,0,0)) => magnet's North along +X.
+    db = MaterialDatabase()
+    table = AssignmentTable()
+    table.assign(1, "N42", MagnetizationSpec.north((1, 0, 0)))
+    m = table.magnetization_vector(1, db, np.array([[0, 0, 0]]))
+    assert np.allclose(m[0], [1.30 / MU_0, 0, 0])
+
+
+def test_remanence_override_takes_precedence():
+    db = MaterialDatabase()
+    table = AssignmentTable()
+    # Override N42 (Br=1.30) with a user-defined Br=0.5 T along +Z.
+    table.assign(1, "N42", MagnetizationSpec.north((0, 0, 1)), remanence_override=0.5)
+    m = table.magnetization_vector(1, db, np.array([[0, 0, 0]]))
+    assert np.allclose(m[0], [0, 0, 0.5 / MU_0])
+
+
+def test_remanence_override_works_on_any_material():
+    # A user can turn any material into a magnet by giving it a Br + direction.
+    db = MaterialDatabase()
+    table = AssignmentTable()
+    table.assign(1, "STEEL_1010", MagnetizationSpec.north((0, 1, 0)),
+                 remanence_override=1.0)
+    m = table.magnetization_vector(1, db, np.array([[0, 0, 0]]))
+    assert np.allclose(m[0], [0, 1.0 / MU_0, 0])
+
+
 def test_assignment_table_serialization_roundtrip():
     table = AssignmentTable()
     table.assign(1, "N52",

@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
+from magnetflux.config import MU_0
 from magnetflux.materials.grades import BUILTIN_MATERIALS
 from magnetflux.materials.magnetization import MagnetizationSpec
 from magnetflux.materials.material import BHCurve, Material, MaterialType
@@ -98,12 +99,20 @@ class Assignment:
     material_id: str
     magnetization: MagnetizationSpec | None = None
     temperature_c: float = 20.0
+    remanence_override: float | None = None  # user-set Br [T]; overrides material
+
+    def effective_remanence(self, material: "Material") -> float:
+        """Remanence Br [T]: the user override if set, else the material's Br(T)."""
+        if self.remanence_override is not None:
+            return self.remanence_override
+        return material.br_at(self.temperature_c)
 
     def to_dict(self) -> dict:
         return {
             "material_id": self.material_id,
             "magnetization": self.magnetization.to_dict() if self.magnetization else None,
             "temperature_c": self.temperature_c,
+            "remanence_override": self.remanence_override,
         }
 
     @classmethod
@@ -113,6 +122,7 @@ class Assignment:
             material_id=data["material_id"],
             magnetization=MagnetizationSpec.from_dict(mag) if mag else None,
             temperature_c=data.get("temperature_c", 20.0),
+            remanence_override=data.get("remanence_override"),
         )
 
 
@@ -128,8 +138,9 @@ class AssignmentTable:
         material_id: str,
         magnetization: MagnetizationSpec | None = None,
         temperature_c: float = 20.0,
+        remanence_override: float | None = None,
     ) -> Assignment:
-        a = Assignment(material_id, magnetization, temperature_c)
+        a = Assignment(material_id, magnetization, temperature_c, remanence_override)
         self._by_body[body_id] = a
         return a
 
@@ -153,9 +164,12 @@ class AssignmentTable:
         if a is None or not db.has(a.material_id):
             return None
         mat = db.get(a.material_id)
-        if not mat.is_magnet or a.magnetization is None:
+        if a.magnetization is None:
             return None
-        magnitude = mat.magnetization_magnitude(a.temperature_c)
+        br = a.effective_remanence(mat)
+        if br <= 0.0:
+            return None
+        magnitude = br / MU_0  # |M| = Br / mu_0 [A/m]; direction points to North
         directions = a.magnetization.direction_at(points)
         return magnitude * directions
 

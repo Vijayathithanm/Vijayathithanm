@@ -10,11 +10,15 @@ of permanent-magnet magnetron cathodes.
    (CAD files are assumed to be in millimetres).
 
 2. **Assign materials** — select a body in the Model Tree and use the
-   **Properties** panel to pick a material:
-   - Permanent magnets: NdFeB **N35 / N42 / N52** or **ceramic ferrite**.
-   - Soft-magnetic pole plates / yokes: **low-carbon steel** (nonlinear B‑H).
-   For magnets, set the **magnetisation** mode (uniform, axial, radial or
-   diametric) and the operating **temperature** (applies the Br(T) correction).
+   **Properties** panel:
+   - Pick a built-in material (NdFeB **N35 / N42 / N52**, **ceramic ferrite**,
+     **low-carbon steel**, …) or click **New…** to define your own material
+     (any name, type, Br and µr).
+   - Set the **remanent flux density Br** [T] for the body (defaults to the
+     material's value; edit it to whatever you need).
+   - Set the **North direction** — a vector pointing to the magnet's North
+     pole. For example `(1, 0, 0)` orients North along **+X**, `(0, 0, 1)`
+     along **+Z**. The vector is normalised automatically.
 
 3. **Solve the field** — *Solve ▸ Solve Field*. The solver builds an air domain,
    assembles the magnetostatic problem (analytic charge model, or the
