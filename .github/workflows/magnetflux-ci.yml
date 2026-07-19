@@ -25,9 +25,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install core + dev dependencies
+      - name: Install core + dev + numerical extras
         run: |
           python -m pip install --upgrade pip
           pip install numpy scipy pytest pytest-cov
-      - name: Run test suite (numerical core)
+          pip install scikit-fem matplotlib reportlab
+      - name: Run test suite (numerical core, FEM, rendering)
         run: pytest -q --cov=magnetflux --cov-report=term-missing

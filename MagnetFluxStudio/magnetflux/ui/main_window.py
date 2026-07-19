@@ -114,6 +114,10 @@ class MainWindow(QMainWindow):
         display_menu.addAction("Export CSV...", self._export_csv)
         display_menu.addAction("Export VTK...", self._export_vtk)
 
+        analyze_menu = self.menuBar().addMenu("&Analyze")
+        analyze_menu.addAction("Predict Race Track...", self._predict_race_track)
+        analyze_menu.addAction("PDF Report...", self._generate_report)
+
         # Field-quantity selector toolbar.
         toolbar = self.addToolBar("Field")
         self._quantity_combo = QComboBox()
@@ -212,6 +216,75 @@ class MainWindow(QMainWindow):
         if path:
             export_vtk(path, self._last_field.result, dims=self._last_field.dims)
             self.statusBar().showMessage(f"Saved {Path(path).name}")
+
+    # -- race-track analysis ---------------------------------------------- #
+
+    def _compute_race_track(self):
+        """Solve on a target plane above the model and predict the race track."""
+        from magnetflux.racetrack.erosion import compute_race_track
+        from magnetflux.visualization.sampling import plane_points
+
+        bbox = self._project.model_tree.bounding_box()
+        if bbox is None:
+            QMessageBox.information(self, "Race Track", "Import a model first.")
+            return None
+        size = bbox.size
+        z_target = bbox.max_corner[2] + 0.1 * max(size[0], size[1])
+        origin = [bbox.center[0], bbox.center[1], z_target]
+        pts, dims = plane_points(origin, [1, 0, 0], [0, 1, 0],
+                                 1.5 * size[0], 1.5 * size[1], 60, 60)
+        problem = self._solver.build_problem(
+            self._project.model_tree, self._material_db, self._assignments, pts
+        )
+        if not problem.magnet_sources:
+            QMessageBox.information(self, "Race Track", "Assign magnet materials first.")
+            return None
+        result = self._solver.solve(problem)
+        return compute_race_track(pts, result.b, dims, normal=[0, 0, 1])
+
+    def _predict_race_track(self) -> None:
+        from magnetflux.racetrack.heatmap import save_heatmap_png
+
+        track = self._compute_race_track()
+        if track is None:
+            return
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Save Race-Track Heatmap", "", "PNG (*.png)"
+        )
+        if path:
+            save_heatmap_png(track, path, "Predicted race track")
+            self.statusBar().showMessage(f"Saved {Path(path).name}")
+
+    def _generate_report(self) -> None:
+        from magnetflux.racetrack.erosion import eroded_area_fraction, uniformity
+        from magnetflux.racetrack.heatmap import save_heatmap_png
+        from magnetflux.racetrack.report import ReportData, generate_pdf_report
+
+        track = self._compute_race_track()
+        if track is None:
+            return
+        path, _ = QFileDialog.getSaveFileName(self, "Save Report", "", "PDF (*.pdf)")
+        if not path:
+            return
+        png = str(Path(path).with_suffix(".png"))
+        save_heatmap_png(track, png, "Predicted race track")
+        magnets = [
+            f"{b.name}: {self._assignments.get(b.id).material_id}"
+            for b in self._project.model_tree
+            if self._assignments.get(b.id) is not None
+        ]
+        data = ReportData(
+            project_name=self._project.name,
+            metrics={
+                "Peak |B_t|": f"{track.b_tangential_mag.max() * 1000:.1f} mT",
+                "Uniformity": f"{uniformity(track):.2f}",
+                "Eroded area fraction": f"{eroded_area_fraction(track):.2f}",
+            },
+            magnets=magnets,
+            heatmap_png=png,
+        )
+        generate_pdf_report(data, path)
+        self.statusBar().showMessage(f"Saved {Path(path).name}")
 
     def _import_cad_dialog(self) -> None:
         patterns = " ".join(f"*{e}" for e in sorted(SUPPORTED_EXTENSIONS))
