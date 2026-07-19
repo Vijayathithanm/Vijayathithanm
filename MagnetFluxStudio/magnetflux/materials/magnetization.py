@@ -52,6 +52,11 @@ class MagnetizationSpec:
     axis: tuple[float, float, float] = (0.0, 0.0, 1.0)
     origin: tuple[float, float, float] = (0.0, 0.0, 0.0)
 
+    def __post_init__(self) -> None:
+        # Qt combo boxes coerce str-enums to plain strings; normalise so the
+        # ``is`` comparisons in direction_at and ``.value`` in to_dict work.
+        self.mode = MagnetizationMode(self.mode)
+
     def direction_at(self, points: np.ndarray) -> np.ndarray:
         """Return ``(N, 3)`` unit magnetisation directions at ``points`` [m]."""
         pts = np.asarray(points, dtype=float).reshape(-1, 3)

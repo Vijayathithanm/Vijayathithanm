@@ -37,7 +37,12 @@ class FieldQuantity(str, Enum):
 
 
 def scalar_values(result: FieldResult, quantity: FieldQuantity) -> np.ndarray:
-    """Return the ``(N,)`` scalar array for ``quantity`` from ``result``."""
+    """Return the ``(N,)`` scalar array for ``quantity`` from ``result``.
+
+    Accepts either a :class:`FieldQuantity` or its string value (Qt combo boxes
+    coerce str-enums to plain strings), coercing to the enum first.
+    """
+    quantity = FieldQuantity(quantity)
     return {
         FieldQuantity.BX: result.bx,
         FieldQuantity.BY: result.by,
