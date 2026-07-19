@@ -14,9 +14,11 @@ pip install -e .[all]
 ```
 
 `.[all]` pulls in the GUI (PySide6, PyVista, VTK), the FEM backend
-(scikit-fem), reporting (reportlab, matplotlib) and dev tools (pytest).
-pythonOCC (`pythonocc-core`) is installed separately via conda-forge if you
-need STEP/IGES import:
+(scikit-fem), CAD import + meshing (Gmsh), reporting (reportlab, matplotlib)
+and dev tools (pytest). STEP/IGES import works via Gmsh out of the box.
+
+For higher-fidelity B-rep import you may additionally install pythonOCC
+(`pythonocc-core`, conda-only); it is used automatically when present:
 
 ```bash
 conda install -c conda-forge pythonocc-core

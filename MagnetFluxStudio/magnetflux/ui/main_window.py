@@ -181,7 +181,10 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "Solve failed", str(exc))
             self.statusBar().showMessage("Solve failed")
 
-        Job(work, on_done=done, on_error=failed).run_sync()
+        try:
+            Job(work, on_done=done, on_error=failed).run_sync()
+        except Exception:  # noqa: BLE001 - already reported via on_error
+            pass
 
     def _display(self, kind: str) -> None:
         if self._last_field is None:
@@ -355,11 +358,14 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "Import failed", str(exc))
             self.statusBar().showMessage("Import failed")
 
-        self._import_job = Job(
-            work, on_done=done, on_error=failed
-        )
+        self._import_job = Job(work, on_done=done, on_error=failed)
         # Run synchronously for a small file; large assemblies could use start().
-        self._import_job.run_sync()
+        # The error is surfaced by `failed`; swallow the re-raise so the global
+        # crash handler doesn't also pop an "Unexpected error" dialog.
+        try:
+            self._import_job.run_sync()
+        except Exception:  # noqa: BLE001 - already reported via on_error
+            pass
 
     def _open_project_dialog(self) -> None:
         path, _ = QFileDialog.getOpenFileName(

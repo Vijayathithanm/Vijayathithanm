@@ -18,7 +18,9 @@ dependencies = [
 # that it stays importable and unit-testable in headless environments.
 [project.optional-dependencies]
 gui = ["PySide6>=6.6", "pyvista>=0.43", "pyvistaqt>=0.11", "vtk>=9.2"]
-cad = ["gmsh>=4.11"]           # pythonOCC (pythonocc-core) via conda-forge
+# Gmsh provides meshing AND the bundleable STEP/IGES importer (pythonOCC is
+# conda-only and cannot be frozen, so Gmsh is the packaged-app CAD path).
+cad = ["gmsh>=4.11"]
 fem = ["scikit-fem>=9.0"]      # pure-Python FEM backend (Windows-friendly)
 report = ["reportlab>=4.0", "matplotlib>=3.8"]
 dev = ["pytest>=7.4", "pytest-cov>=4.1"]

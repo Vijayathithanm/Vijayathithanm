@@ -10,7 +10,11 @@
 # -*- mode: python ; coding: utf-8 -*-
 import os
 
-from PyInstaller.utils.hooks import collect_data_files, collect_submodules
+from PyInstaller.utils.hooks import (
+    collect_data_files,
+    collect_dynamic_libs,
+    collect_submodules,
+)
 
 # Resolve paths relative to this spec file so the build works from any CWD.
 project_root = os.path.dirname(SPECPATH)
@@ -30,10 +34,15 @@ hiddenimports = (
 
 datas = collect_data_files("pyvista") + collect_data_files("vtkmodules")
 
+# Gmsh is a single module that loads a bundled shared library via ctypes; its
+# binary must be collected explicitly so STEP/IGES import works in the freeze.
+hiddenimports += ["gmsh"]
+binaries = collect_dynamic_libs("gmsh")
+
 a = Analysis(
     [entry_script],
     pathex=[project_root],
-    binaries=[],
+    binaries=binaries,
     datas=datas,
     hiddenimports=hiddenimports,
     hookspath=[],

@@ -58,12 +58,19 @@ def import_cad(
     elif ext in STEP_EXTENSIONS or ext in IGES_EXTENSIONS:
         from magnetflux.cad.occ_import import is_occ_available, read_iges, read_step
 
-        if not is_occ_available():
-            raise RuntimeError(
-                "STEP/IGES import requires pythonOCC (pythonocc-core). "
-                "Install it via conda-forge, or import an STL instead."
-            )
-        meshes = read_step(path) if ext in STEP_EXTENSIONS else read_iges(path)
+        if is_occ_available():
+            # pythonOCC gives the highest-fidelity B-rep import when present.
+            meshes = read_step(path) if ext in STEP_EXTENSIONS else read_iges(path)
+        else:
+            # Fall back to Gmsh, which ships pip wheels and works in the packaged app.
+            from magnetflux.cad.gmsh_import import is_gmsh_available, read_cad_gmsh
+
+            if not is_gmsh_available():
+                raise RuntimeError(
+                    "STEP/IGES import requires Gmsh or pythonOCC. Install with "
+                    "'pip install gmsh', or import an STL instead."
+                )
+            meshes = read_cad_gmsh(path)
     else:
         raise UnsupportedFormatError(
             f"unsupported CAD format '{ext}'; supported: "
