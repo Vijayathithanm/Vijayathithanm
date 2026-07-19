@@ -12,6 +12,7 @@ from pathlib import Path
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QComboBox,
     QDockWidget,
     QFileDialog,
     QMainWindow,
@@ -26,6 +27,10 @@ from magnetflux.core.units import LengthUnit
 from magnetflux.logging_setup import get_logger
 from magnetflux.materials.database import AssignmentTable, MaterialDatabase
 from magnetflux.materials.database import materials_from_section, materials_to_section
+from magnetflux.solver.service import SolverService
+from magnetflux.visualization.export import export_csv, export_vtk
+from magnetflux.visualization.quantities import FieldQuantity, available_quantities
+from magnetflux.visualization.sampling import StructuredField, grid_points
 from magnetflux.ui.log_panel import LogPanel
 from magnetflux.ui.model_tree_widget import ModelTreeWidget
 from magnetflux.ui.property_panel import PropertyPanel
@@ -44,12 +49,18 @@ class MainWindow(QMainWindow):
         self._import_job: Job | None = None
         self._material_db = MaterialDatabase()
         self._assignments = AssignmentTable()
+        self._solver = SolverService()
+        self._last_field: StructuredField | None = None
 
         self.setWindowTitle("MagnetFlux Studio")
         self.resize(1280, 800)
 
         self._viewport = Viewport(self)
         self.setCentralWidget(self._viewport)
+
+        from magnetflux.visualization.field_viz import FieldVisualizer
+
+        self._field_viz = FieldVisualizer(self._viewport)
 
         self._tree_widget = ModelTreeWidget(self)
         self._tree_widget.visibility_changed.connect(self._viewport.set_body_visible)
@@ -90,6 +101,27 @@ class MainWindow(QMainWindow):
         view_menu.addAction("Front (XZ)", lambda: self._viewport.set_view("xz"))
         view_menu.addAction("Right (YZ)", lambda: self._viewport.set_view("yz"))
 
+        solve_menu = self.menuBar().addMenu("&Solve")
+        solve_menu.addAction("Solve Field", self._solve_field)
+
+        display_menu = self.menuBar().addMenu("&Display")
+        display_menu.addAction("Slice", lambda: self._display("slice"))
+        display_menu.addAction("Contours", lambda: self._display("contours"))
+        display_menu.addAction("Vector Glyphs", lambda: self._display("glyphs"))
+        display_menu.addAction("Streamlines", lambda: self._display("streamlines"))
+        display_menu.addSeparator()
+        display_menu.addAction("Export PNG...", self._export_png)
+        display_menu.addAction("Export CSV...", self._export_csv)
+        display_menu.addAction("Export VTK...", self._export_vtk)
+
+        # Field-quantity selector toolbar.
+        toolbar = self.addToolBar("Field")
+        self._quantity_combo = QComboBox()
+        for q in available_quantities():
+            self._quantity_combo.addItem(q.value, q)
+        self._quantity_combo.setCurrentText(FieldQuantity.BMAG.value)
+        toolbar.addWidget(self._quantity_combo)
+
     # -- actions ---------------------------------------------------------- #
 
     def _new_project(self) -> None:
@@ -105,6 +137,81 @@ class MainWindow(QMainWindow):
     def _on_assignment_changed(self, body_id: int, assignment) -> None:
         # Keep the model tree's material_id in sync for colouring/queries.
         self._project.model_tree.assign_material(body_id, assignment.material_id)
+
+    # -- solve & visualize ------------------------------------------------ #
+
+    def _current_quantity(self) -> FieldQuantity:
+        return self._quantity_combo.currentData()
+
+    def _solve_field(self) -> None:
+        bbox = self._project.model_tree.bounding_box()
+        if bbox is None:
+            QMessageBox.information(self, "Solve", "Import a model first.")
+            return
+        region = bbox.padded(1.5)
+        points, dims = grid_points(region, 24, 24, 24)
+        self.statusBar().showMessage("Solving field...")
+
+        def work(progress):
+            problem = self._solver.build_problem(
+                self._project.model_tree, self._material_db,
+                self._assignments, points,
+            )
+            if not problem.magnet_sources:
+                raise ValueError("No permanent-magnet bodies assigned.")
+            return self._solver.solve(problem, progress=progress)
+
+        def done(result) -> None:
+            self._last_field = StructuredField(points, result, dims)
+            self._display("slice")
+            self.statusBar().showMessage(
+                f"Solved: {result.metadata.get('backend', '')}"
+            )
+
+        def failed(exc: BaseException) -> None:
+            log.error("Solve failed: %s", exc)
+            QMessageBox.critical(self, "Solve failed", str(exc))
+            self.statusBar().showMessage("Solve failed")
+
+        Job(work, on_done=done, on_error=failed).run_sync()
+
+    def _display(self, kind: str) -> None:
+        if self._last_field is None:
+            QMessageBox.information(self, "Display", "Solve the field first.")
+            return
+        q = self._current_quantity()
+        self._field_viz.clear()
+        {
+            "slice": lambda: self._field_viz.show_slice(self._last_field, q),
+            "contours": lambda: self._field_viz.show_contours(self._last_field, q),
+            "glyphs": lambda: self._field_viz.show_glyphs(self._last_field, q),
+            "streamlines": lambda: self._field_viz.show_streamlines(self._last_field, q),
+        }[kind]()
+        self._viewport.render()
+
+    def _export_png(self) -> None:
+        path, _ = QFileDialog.getSaveFileName(self, "Export PNG", "", "PNG (*.png)")
+        if path:
+            self._field_viz.export_png(path)
+            self.statusBar().showMessage(f"Saved {Path(path).name}")
+
+    def _export_csv(self) -> None:
+        if self._last_field is None:
+            QMessageBox.information(self, "Export", "Solve the field first.")
+            return
+        path, _ = QFileDialog.getSaveFileName(self, "Export CSV", "", "CSV (*.csv)")
+        if path:
+            export_csv(path, self._last_field.result)
+            self.statusBar().showMessage(f"Saved {Path(path).name}")
+
+    def _export_vtk(self) -> None:
+        if self._last_field is None:
+            QMessageBox.information(self, "Export", "Solve the field first.")
+            return
+        path, _ = QFileDialog.getSaveFileName(self, "Export VTK", "", "VTK (*.vtk)")
+        if path:
+            export_vtk(path, self._last_field.result, dims=self._last_field.dims)
+            self.statusBar().showMessage(f"Saved {Path(path).name}")
 
     def _import_cad_dialog(self) -> None:
         patterns = " ".join(f"*{e}" for e in sorted(SUPPORTED_EXTENSIONS))
