@@ -19,5 +19,5 @@ PyVista) are imported lazily so the numerical core remains importable and
 unit-testable with only NumPy and SciPy installed.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.6.0"
 __all__ = ["__version__"]

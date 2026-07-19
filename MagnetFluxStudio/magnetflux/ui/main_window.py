@@ -118,6 +118,10 @@ class MainWindow(QMainWindow):
         analyze_menu.addAction("Predict Race Track...", self._predict_race_track)
         analyze_menu.addAction("PDF Report...", self._generate_report)
 
+        opt_menu = self.menuBar().addMenu("&Optimize")
+        opt_menu.addAction("Magnet Spacing Study...", self._optimize_spacing)
+        opt_menu.addAction("Pole Count Study...", self._optimize_poles)
+
         # Field-quantity selector toolbar.
         toolbar = self.addToolBar("Field")
         self._quantity_combo = QComboBox()
@@ -285,6 +289,37 @@ class MainWindow(QMainWindow):
         )
         generate_pdf_report(data, path)
         self.statusBar().showMessage(f"Saved {Path(path).name}")
+
+    # -- optimization ----------------------------------------------------- #
+
+    def _optimize_spacing(self) -> None:
+        from magnetflux.optimization.layout import ParametricLayout
+        from magnetflux.optimization.optimize import optimize_spacing
+
+        layout = ParametricLayout()
+        self.statusBar().showMessage("Optimizing magnet spacing...")
+        result = optimize_spacing(layout, bounds=(0.02, 0.08))
+        QMessageBox.information(
+            self, "Spacing Study",
+            f"Best ring radius: {result.best_value * 1000:.1f} mm\n"
+            f"Target utilisation: {result.best_score:.3f}\n"
+            f"({len(result.history)} evaluations)",
+        )
+        self.statusBar().showMessage("Spacing study complete")
+
+    def _optimize_poles(self) -> None:
+        from magnetflux.optimization.layout import ParametricLayout
+        from magnetflux.optimization.optimize import optimize_pole_arrangement
+
+        layout = ParametricLayout()
+        self.statusBar().showMessage("Optimizing pole count...")
+        result = optimize_pole_arrangement(layout, ring_counts=[3, 4, 6, 8, 12])
+        QMessageBox.information(
+            self, "Pole Count Study",
+            f"Best ring magnet count: {int(result.best_value)}\n"
+            f"Target utilisation: {result.best_score:.3f}",
+        )
+        self.statusBar().showMessage("Pole count study complete")
 
     def _import_cad_dialog(self) -> None:
         patterns = " ".join(f"*{e}" for e in sorted(SUPPORTED_EXTENSIONS))

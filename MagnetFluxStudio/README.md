@@ -67,4 +67,4 @@ pytest                # numerical core is fully testable without GUI/FEM libs
 - [x] **M3** Magnetostatic solver — air domain, mesh, analytic + scikit-fem A-formulation
 - [x] **M4** Visualization — contours, streamlines, glyphs, slices, probes; PNG/CSV/VTK export
 - [x] **M5** Race-track prediction — erosion model, heatmap, PDF report
-- [ ] **M6** Optimization & release — spacing/pole optimizers, Windows installer
+- [x] **M6** Optimization & release — spacing/pole optimizers, Windows installer
