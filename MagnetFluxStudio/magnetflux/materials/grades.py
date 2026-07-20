@@ -32,24 +32,49 @@ def _builtin_materials() -> dict[str, Material]:
     add(Material("AIR", "Air", MaterialType.AIR, mu_r=1.0, density=1.2))
 
     # NdFeB sintered magnets (recoil mu_r ~ 1.05, temp coeff of Br ~ -0.12 %/K).
-    add(Material("N35", "NdFeB N35", MaterialType.PERMANENT_MAGNET,
-                 mu_r=1.05, remanence_br=1.18, coercivity_hc=868e3,
-                 temp_coeff_br=-0.12, density=7500,
-                 description="Sintered NdFeB, (BH)max ~ 279 kJ/m^3"))
-    add(Material("N42", "NdFeB N42", MaterialType.PERMANENT_MAGNET,
-                 mu_r=1.05, remanence_br=1.30, coercivity_hc=955e3,
-                 temp_coeff_br=-0.12, density=7500,
-                 description="Sintered NdFeB, (BH)max ~ 334 kJ/m^3"))
-    add(Material("N52", "NdFeB N52", MaterialType.PERMANENT_MAGNET,
-                 mu_r=1.05, remanence_br=1.44, coercivity_hc=923e3,
-                 temp_coeff_br=-0.12, density=7500,
-                 description="Sintered NdFeB, (BH)max ~ 414 kJ/m^3"))
+    # Representative catalogue Br [T] and max operating temperature [degC].
+    ndfeb = [
+        ("N35", 1.18, 868e3, 80), ("N38", 1.23, 899e3, 80),
+        ("N40", 1.27, 923e3, 80), ("N42", 1.30, 955e3, 80),
+        ("N45", 1.35, 963e3, 80), ("N48", 1.40, 995e3, 80),
+        ("N50", 1.42, 907e3, 60), ("N52", 1.44, 923e3, 60),
+    ]
+    for gid, br, hc, tmax in ndfeb:
+        add(Material(gid, f"NdFeB {gid}", MaterialType.PERMANENT_MAGNET,
+                     mu_r=1.05, remanence_br=br, coercivity_hc=hc,
+                     temp_coeff_br=-0.12, density=7500,
+                     max_operating_temp=tmax, curie_temp=310,
+                     description="Sintered NdFeB"))
 
-    # Hard ferrite (ceramic), Y30-class.
-    add(Material("FERRITE", "Ceramic Ferrite (Y30)", MaterialType.PERMANENT_MAGNET,
+    # Hard ferrite (ceramic).
+    add(Material("FERRITE_Y30", "Ceramic Ferrite Y30", MaterialType.PERMANENT_MAGNET,
                  mu_r=1.1, remanence_br=0.40, coercivity_hc=240e3,
-                 temp_coeff_br=-0.20, density=4900,
-                 description="Hard ferrite, low cost, high temp stability"))
+                 temp_coeff_br=-0.20, density=4900, max_operating_temp=250,
+                 curie_temp=450, description="Hard ferrite, low cost"))
+    add(Material("FERRITE_Y35", "Ceramic Ferrite Y35", MaterialType.PERMANENT_MAGNET,
+                 mu_r=1.1, remanence_br=0.44, coercivity_hc=265e3,
+                 temp_coeff_br=-0.20, density=4900, max_operating_temp=250,
+                 curie_temp=450, description="Hard ferrite, higher Br"))
+
+    # Samarium-cobalt: high temperature stability, low temp coefficient.
+    add(Material("SMCO_28", "SmCo 2:17 (Sm2Co17-28)", MaterialType.PERMANENT_MAGNET,
+                 mu_r=1.05, remanence_br=1.05, coercivity_hc=760e3,
+                 temp_coeff_br=-0.035, density=8300, max_operating_temp=300,
+                 curie_temp=800, description="SmCo, high-temp, corrosion-resistant"))
+    add(Material("SMCO_32", "SmCo 2:17 (Sm2Co17-32)", MaterialType.PERMANENT_MAGNET,
+                 mu_r=1.05, remanence_br=1.13, coercivity_hc=780e3,
+                 temp_coeff_br=-0.035, density=8300, max_operating_temp=300,
+                 curie_temp=800, description="SmCo, high-temp grade"))
+
+    # Alnico: very high Curie temperature, low coercivity.
+    add(Material("ALNICO_5", "Alnico 5", MaterialType.PERMANENT_MAGNET,
+                 mu_r=1.9, remanence_br=1.25, coercivity_hc=51e3,
+                 temp_coeff_br=-0.02, density=7300, max_operating_temp=525,
+                 curie_temp=860, description="Alnico, high temp, low Hc"))
+    add(Material("ALNICO_8", "Alnico 8", MaterialType.PERMANENT_MAGNET,
+                 mu_r=1.7, remanence_br=0.82, coercivity_hc=131e3,
+                 temp_coeff_br=-0.02, density=7300, max_operating_temp=525,
+                 curie_temp=860, description="Alnico, higher Hc"))
 
     # Soft-magnetic pole/yoke steel with nonlinear B-H.
     add(Material("STEEL_1010", "Low-carbon steel (1010)", MaterialType.SOFT_MAGNETIC,
@@ -66,5 +91,8 @@ def _builtin_materials() -> dict[str, Material]:
 #: The immutable built-in material library, keyed by material id.
 BUILTIN_MATERIALS: dict[str, Material] = _builtin_materials()
 
-#: Convenience list of the magnet grades required by the spec.
-MAGNET_GRADES = ["N35", "N42", "N52", "FERRITE"]
+#: Convenience list of the built-in permanent-magnet grades.
+MAGNET_GRADES = [
+    "N35", "N38", "N40", "N42", "N45", "N48", "N50", "N52",
+    "FERRITE_Y30", "FERRITE_Y35", "SMCO_28", "SMCO_32", "ALNICO_5", "ALNICO_8",
+]

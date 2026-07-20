@@ -31,18 +31,25 @@ def import_cad(
 ) -> list[TriangleMesh]:
     """Import a CAD file, returning meshes scaled to metres.
 
-    Args:
-        path: File to import (``.step/.stp``, ``.iges/.igs`` or ``.stl``).
-        source_unit: Unit the CAD file is authored in (CAD is usually mm).
+    One :class:`TriangleMesh` per solid (STL returns a single mesh), in metres.
+    Use :func:`import_cad_named` to also get per-component names.
+    """
+    return [mesh for _name, mesh in import_cad_named(path, source_unit)]
 
-    Returns:
-        One :class:`TriangleMesh` per solid (STL returns a single mesh),
-        with vertices in metres.
+
+def import_cad_named(
+    path: str | Path,
+    source_unit: LengthUnit = LengthUnit.MILLIMETER,
+) -> list[tuple[str | None, TriangleMesh]]:
+    """Import a CAD file, returning ``(component_name, mesh)`` pairs (metres).
+
+    STEP/IGES assemblies keep each solid's component name so materials can be
+    assigned per part in a single import. STL yields a single unnamed solid.
 
     Raises:
         UnsupportedFormatError: For an unrecognised extension.
         FileNotFoundError: If the file does not exist.
-        RuntimeError: If STEP/IGES import is requested without pythonOCC.
+        RuntimeError: If STEP/IGES import needs a CAD kernel that isn't present.
     """
     path = Path(path)
     if not path.exists():
@@ -51,32 +58,35 @@ def import_cad(
     ext = path.suffix.lower()
     scale = source_unit.to_meter
 
+    named: list[tuple[str | None, TriangleMesh]]
     if ext in STL_EXTENSIONS:
         from magnetflux.cad.stl import read_stl
 
-        meshes = [read_stl(path)]
+        named = [(None, read_stl(path))]
     elif ext in STEP_EXTENSIONS or ext in IGES_EXTENSIONS:
         from magnetflux.cad.occ_import import is_occ_available, read_iges, read_step
 
         if is_occ_available():
             # pythonOCC gives the highest-fidelity B-rep import when present.
             meshes = read_step(path) if ext in STEP_EXTENSIONS else read_iges(path)
+            named = [(None, m) for m in meshes]
         else:
             # Fall back to Gmsh, which ships pip wheels and works in the packaged app.
-            from magnetflux.cad.gmsh_import import is_gmsh_available, read_cad_gmsh
+            from magnetflux.cad.gmsh_import import is_gmsh_available, read_cad_gmsh_named
 
             if not is_gmsh_available():
                 raise RuntimeError(
                     "STEP/IGES import requires Gmsh or pythonOCC. Install with "
                     "'pip install gmsh', or import an STL instead."
                 )
-            meshes = read_cad_gmsh(path)
+            named = read_cad_gmsh_named(path)
     else:
         raise UnsupportedFormatError(
             f"unsupported CAD format '{ext}'; supported: "
             f"{sorted(SUPPORTED_EXTENSIONS)}"
         )
 
-    scaled = [m.scaled(scale) for m in meshes] if scale != 1.0 else meshes
-    log.info("Imported %s: %d solid(s), unit=%s", path.name, len(scaled), source_unit.value)
-    return scaled
+    if scale != 1.0:
+        named = [(name, m.scaled(scale)) for name, m in named]
+    log.info("Imported %s: %d solid(s), unit=%s", path.name, len(named), source_unit.value)
+    return named

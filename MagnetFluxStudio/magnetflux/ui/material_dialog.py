@@ -12,12 +12,14 @@ from PySide6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QDoubleSpinBox,
+    QFileDialog,
     QFormLayout,
     QLineEdit,
     QMessageBox,
+    QPushButton,
 )
 
-from magnetflux.materials.material import Material, MaterialType
+from magnetflux.materials.material import BHCurve, Material, MaterialType
 
 
 class MaterialDialog(QDialog):
@@ -50,11 +52,17 @@ class MaterialDialog(QDialog):
         self._mu_r.setDecimals(3)
         self._mu_r.setValue(1.05)
 
+        self._bh_curve: BHCurve | None = None
+        self._bh_button = QPushButton("Load B-H from CSV...")
+        self._bh_button.setToolTip("Import a nonlinear B-H curve (H,B columns)")
+        self._bh_button.clicked.connect(self._load_bh_csv)
+
         form.addRow("ID", self._id)
         form.addRow("Name", self._name)
         form.addRow("Type", self._type)
         form.addRow("Remanent flux density Br", self._br)
         form.addRow("Relative permeability mu_r", self._mu_r)
+        form.addRow("B-H curve", self._bh_button)
 
         buttons = QDialogButtonBox(
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel
@@ -62,6 +70,19 @@ class MaterialDialog(QDialog):
         buttons.accepted.connect(self._on_accept)
         buttons.rejected.connect(self.reject)
         form.addRow(buttons)
+
+    def _load_bh_csv(self) -> None:
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Load B-H curve", "", "CSV (*.csv)"
+        )
+        if not path:
+            return
+        try:
+            self._bh_curve = BHCurve.from_csv(path)
+        except Exception as exc:  # noqa: BLE001 - surfaced to user
+            QMessageBox.warning(self, "B-H curve", f"Could not load curve:\n{exc}")
+            return
+        self._bh_button.setText(f"B-H loaded ({self._bh_curve.b.size} points)")
 
     def _on_accept(self) -> None:
         if not self._id.text().strip() or not self._name.text().strip():
@@ -78,4 +99,5 @@ class MaterialDialog(QDialog):
             mtype=mtype,
             mu_r=self._mu_r.value(),
             remanence_br=self._br.value() if mtype is MaterialType.PERMANENT_MAGNET else 0.0,
+            bh_curve=self._bh_curve,
         )

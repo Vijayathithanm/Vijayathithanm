@@ -69,6 +69,35 @@ class BHCurve:
         """Initial relative permeability (first curve segment)."""
         return float(self.b[1] / (MU_0 * self.h[1]))
 
+    @classmethod
+    def from_csv(cls, path) -> "BHCurve":
+        """Load a B-H curve from a two-column CSV (H [A/m], B [T]).
+
+        A header row is skipped if the first cell is non-numeric. Rows are
+        sorted by B and a (0, 0) origin is prepended if absent.
+        """
+        import csv as _csv
+        from pathlib import Path as _Path
+
+        h_vals: list[float] = []
+        b_vals: list[float] = []
+        with _Path(path).open(newline="", encoding="utf-8") as fh:
+            for row in _csv.reader(fh):
+                if len(row) < 2:
+                    continue
+                try:
+                    h_vals.append(float(row[0]))
+                    b_vals.append(float(row[1]))
+                except ValueError:
+                    continue  # header or blank cell
+        order = np.argsort(b_vals)
+        h_arr = np.asarray(h_vals, dtype=float)[order]
+        b_arr = np.asarray(b_vals, dtype=float)[order]
+        if b_arr.size == 0 or b_arr[0] > 0:
+            h_arr = np.concatenate([[0.0], h_arr])
+            b_arr = np.concatenate([[0.0], b_arr])
+        return cls(h_arr, b_arr)
+
 
 @dataclass(slots=True)
 class Material:
@@ -97,9 +126,17 @@ class Material:
     temp_coeff_br: float = 0.0
     bh_curve: BHCurve | None = None
     density: float = 0.0
+    max_operating_temp: float = 0.0      # [degC] max working temperature
+    curie_temp: float = 0.0              # [degC] Curie temperature
+    electrical_resistivity: float = 0.0  # [ohm.m]
     description: str = ""
 
     # -- physics ---------------------------------------------------------- #
+
+    @property
+    def susceptibility(self) -> float:
+        """Magnetic susceptibility ``chi = mu_r - 1``."""
+        return self.mu_r - 1.0
 
     def br_at(self, temperature_c: float = 20.0) -> float:
         """Remanence at ``temperature_c`` using the reversible temp coefficient."""
