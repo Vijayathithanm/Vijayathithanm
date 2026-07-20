@@ -32,6 +32,7 @@ from magnetflux.visualization.export import export_csv, export_vtk
 from magnetflux.visualization.quantities import FieldQuantity, available_quantities
 from magnetflux.visualization.sampling import StructuredField, grid_points
 from magnetflux.ui.log_panel import LogPanel
+from magnetflux.ui.model_builder import ModelBuilder
 from magnetflux.ui.model_tree_widget import ModelTreeWidget
 from magnetflux.ui.property_panel import PropertyPanel
 from magnetflux.ui.viewport import Viewport
@@ -53,36 +54,64 @@ class MainWindow(QMainWindow):
         self._last_field: StructuredField | None = None
 
         self.setWindowTitle("MagnetFlux Studio")
-        self.resize(1280, 800)
+        self.resize(1360, 860)
 
-        self._viewport = Viewport(self)
-        self.setCentralWidget(self._viewport)
+        # Central area: a stacked widget switching between the home dashboard
+        # and the 3D workspace, COMSOL-style.
+        from PySide6.QtWidgets import QStackedWidget
 
+        from magnetflux.ui.dashboard import HomeDashboard
         from magnetflux.visualization.field_viz import FieldVisualizer
 
+        self._stack = QStackedWidget(self)
+        self.setCentralWidget(self._stack)
+
+        self._dashboard = HomeDashboard(self)
+        self._dashboard.new_project.connect(self._dashboard_new)
+        self._dashboard.open_project.connect(self._dashboard_open)
+        self._dashboard.import_cad.connect(self._dashboard_import)
+        self._dashboard.open_material_library.connect(self._enter_workspace)
+        self._stack.addWidget(self._dashboard)
+
+        self._viewport = Viewport(self)
+        self._stack.addWidget(self._viewport)
         self._field_viz = FieldVisualizer(self._viewport)
+
+        # Docks.
+        self._model_builder = ModelBuilder(self)
+        self._model_builder.node_activated.connect(self._on_node_activated)
+        self._builder_dock = self._add_dock(
+            "Model Builder", self._model_builder, Qt.LeftDockWidgetArea
+        )
 
         self._tree_widget = ModelTreeWidget(self)
         self._tree_widget.visibility_changed.connect(self._viewport.set_body_visible)
         self._tree_widget.body_selected.connect(self._on_body_selected)
-        self._add_dock("Model Tree", self._tree_widget, Qt.LeftDockWidgetArea)
+        self._tree_dock = self._add_dock(
+            "Geometry", self._tree_widget, Qt.LeftDockWidgetArea
+        )
 
         self._property_panel = PropertyPanel(self._material_db, self._assignments, self)
         self._property_panel.assignment_changed.connect(self._on_assignment_changed)
-        self._add_dock("Properties", self._property_panel, Qt.RightDockWidgetArea)
+        self._prop_dock = self._add_dock(
+            "Properties", self._property_panel, Qt.RightDockWidgetArea
+        )
 
         self._log_panel = LogPanel(self)
-        self._add_dock("Log", self._log_panel, Qt.BottomDockWidgetArea)
+        self._log_dock = self._add_dock("Log", self._log_panel, Qt.BottomDockWidgetArea)
 
         self._build_menus()
+        self._build_ribbon()
+        self._show_dashboard()
         self.statusBar().showMessage("Ready")
 
     # -- construction helpers -------------------------------------------- #
 
-    def _add_dock(self, title: str, widget, area) -> None:
+    def _add_dock(self, title: str, widget, area):
         dock = QDockWidget(title, self)
         dock.setWidget(widget)
         self.addDockWidget(area, dock)
+        return dock
 
     def _build_menus(self) -> None:
         file_menu = self.menuBar().addMenu("&File")
@@ -129,6 +158,114 @@ class MainWindow(QMainWindow):
             self._quantity_combo.addItem(q.value, q)
         self._quantity_combo.setCurrentText(FieldQuantity.BMAG.value)
         toolbar.addWidget(self._quantity_combo)
+
+    def _build_ribbon(self) -> None:
+        from magnetflux.ui.ribbon import RibbonBar
+
+        ribbon = RibbonBar(self)
+
+        home = ribbon.add_tab("Home")
+        g = home.add_group("Project")
+        g.add_button("New", self._new_project)
+        g.add_button("Open", self._open_project_dialog)
+        g.add_button("Save", self._save_project_dialog)
+        g = home.add_group("View")
+        g.add_button("Home", self._show_dashboard)
+        g.add_button("Dark Mode", self._toggle_theme)
+
+        geo = ribbon.add_tab("Geometry")
+        g = geo.add_group("Import")
+        g.add_button("Import CAD", self._import_cad_dialog)
+        g = geo.add_group("Camera")
+        g.add_button("Fit", self._viewport.fit_view)
+        g.add_button("Isometric", lambda: self._viewport.set_view("iso"))
+
+        mat = ribbon.add_tab("Materials")
+        g = mat.add_group("Materials")
+        g.add_button("New Material", self._new_material)
+
+        study = ribbon.add_tab("Study")
+        g = study.add_group("Solve")
+        g.add_button("Solve Field", self._solve_field)
+        g = study.add_group("Magnetron")
+        g.add_button("Race Track", self._predict_race_track)
+        g.add_button("Report", self._generate_report)
+
+        results = ribbon.add_tab("Results")
+        g = results.add_group("Plots")
+        g.add_button("Slice", lambda: self._display("slice"))
+        g.add_button("Contours", lambda: self._display("contours"))
+        g.add_button("Glyphs", lambda: self._display("glyphs"))
+        g.add_button("Streamlines", lambda: self._display("streamlines"))
+        g = results.add_group("Export")
+        g.add_button("PNG", self._export_png)
+        g.add_button("CSV", self._export_csv)
+        g.add_button("VTK", self._export_vtk)
+
+        self._ribbon_toolbar = self.addToolBar("Ribbon")
+        self.addToolBarBreak()
+        self._ribbon_toolbar.addWidget(ribbon)
+        self._ribbon_toolbar.setMovable(False)
+
+    def _new_material(self) -> None:
+        self._property_panel._create_material()  # noqa: SLF001
+
+    # -- workspace / dashboard switching ---------------------------------- #
+
+    def _workspace_docks(self):
+        return (self._builder_dock, self._tree_dock, self._prop_dock, self._log_dock)
+
+    def _show_dashboard(self) -> None:
+        self._stack.setCurrentWidget(self._dashboard)
+        for dock in self._workspace_docks():
+            dock.hide()
+        self._ribbon_toolbar.hide()
+
+    def _enter_workspace(self) -> None:
+        self._stack.setCurrentWidget(self._viewport)
+        for dock in self._workspace_docks():
+            dock.show()
+        self._ribbon_toolbar.show()
+
+    def _dashboard_new(self) -> None:
+        self._new_project()
+        self._enter_workspace()
+
+    def _dashboard_open(self) -> None:
+        self._enter_workspace()
+        self._open_project_dialog()
+
+    def _dashboard_import(self) -> None:
+        self._enter_workspace()
+        self._import_cad_dialog()
+
+    def _toggle_theme(self) -> None:
+        from PySide6.QtWidgets import QApplication
+
+        from magnetflux.ui.theme import Theme, stylesheet
+
+        self._dark = not getattr(self, "_dark", False)
+        app = QApplication.instance()
+        if app is not None:
+            app.setStyleSheet(stylesheet(Theme.DARK if self._dark else Theme.LIGHT))
+
+    def _on_node_activated(self, key: str) -> None:
+        """Map a Model Builder node to an action/dock."""
+        if key == "geometry":
+            self._tree_dock.raise_()
+        elif key == "materials" or key.startswith("material"):
+            self._prop_dock.raise_()
+        elif key == "study":
+            self._solve_field()
+        elif key == "results.racetrack":
+            self._predict_race_track()
+        elif key == "export":
+            self._export_csv()
+        elif key.startswith("body."):
+            try:
+                self._on_body_selected(int(key.split(".", 1)[1]))
+            except ValueError:
+                pass
 
     # -- actions ---------------------------------------------------------- #
 
@@ -415,6 +552,7 @@ class MainWindow(QMainWindow):
     def _refresh_views(self) -> None:
         self._property_panel.set_context(self._material_db, self._assignments)
         self._tree_widget.set_model_tree(self._project.model_tree)
+        self._model_builder.refresh(self._project.model_tree)
         self._viewport.render_tree(self._project.model_tree)
 
     def closeEvent(self, event) -> None:  # noqa: N802 (Qt override)
