@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
-import { Playfair_Display, Inter } from 'next/font/google';
+import { Bebas_Neue, Inter } from 'next/font/google';
 import './globals.css';
 import { seo } from '@/content/site';
 
-/* Bold display serif for headings, clean sans for body. */
-const display = Playfair_Display({
+/* Tall cinematic display face for big titles, clean sans for body. */
+const display = Bebas_Neue({
   subsets: ['latin'],
-  weight: ['600', '700', '800', '900'],
+  weight: '400',
   variable: '--font-display',
   display: 'swap',
 });

@@ -1,10 +1,10 @@
 import type { Config } from 'tailwindcss';
 
 /**
- * Minimal, gallery-like palette:
- *   paper   → pure white background (#FFFFFF)
- *   ink     → dark charcoal text (#1A1A1A)
- *   gold    → the single accent, used sparingly (#C8A047)
+ * Cinematic, streaming-style dark palette:
+ *   ink    → near-black canvas (#141414)
+ *   red    → hot streaming-red accent (#E50914)
+ *   gold   → warm secondary accent that ties back to the maestro (#C8A047)
  */
 const config: Config = {
   content: [
@@ -15,37 +15,35 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        paper: '#FFFFFF',
-        ink: '#1A1A1A',
-        muted: '#5A5A5A',
-        faint: '#8A8A8A',
-        line: '#EAEAEA',
+        ink: '#141414',
+        black2: '#0b0b0b',
+        panel: '#1c1c1c',
+        line: '#2b2b2b',
+        white: '#ffffff',
+        muted: '#b3b3b3',
+        faint: '#7a7a7a',
+        red: '#E50914',
+        'red-dark': '#b0060f',
         gold: '#C8A047',
-        'gold-soft': '#E3CFA0',
       },
       fontFamily: {
-        display: ['var(--font-display)', 'Georgia', 'serif'],
+        display: ['var(--font-display)', 'Arial Narrow', 'sans-serif'],
         sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
       },
       letterSpacing: {
-        widest2: '0.35em',
+        widest2: '0.3em',
       },
       maxWidth: {
-        content: '72rem',
-      },
-      animation: {
-        'fade-in': 'fadeIn 0.8s ease forwards',
-        float: 'float 7s ease-in-out infinite',
+        content: '90rem',
       },
       keyframes: {
         fadeIn: {
           '0%': { opacity: '0', transform: 'translateY(16px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
-        float: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-10px)' },
-        },
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.7s ease forwards',
       },
     },
   },

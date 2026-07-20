@@ -1,24 +1,18 @@
 'use client';
 
-/** Soft, gallery-style studio lighting — everything reads on white. */
+/** Moody, cinematic lighting for the dark hero stage. */
 export default function Lights() {
   return (
     <>
-      <ambientLight intensity={0.9} />
+      <ambientLight intensity={0.35} />
       {/* Key light, upper-front */}
-      <directionalLight
-        position={[4, 6, 6]}
-        intensity={1.15}
-        castShadow
-        shadow-mapSize={[1024, 1024]}
-        shadow-bias={-0.0004}
-      >
-        <orthographicCamera attach="shadow-camera" args={[-8, 8, 8, -8, 0.1, 30]} />
-      </directionalLight>
-      {/* Cool fill from the opposite side to keep shadows open */}
-      <directionalLight position={[-6, 3, 2]} intensity={0.35} />
-      {/* Faint warm rim to hint at the gold accent */}
-      <pointLight position={[0, 2, -4]} intensity={0.4} color="#C8A047" distance={18} />
+      <directionalLight position={[4, 6, 6]} intensity={0.9} />
+      {/* Cool fill from the side */}
+      <directionalLight position={[-6, 2, 2]} intensity={0.25} color="#8aa0ff" />
+      {/* Warm gold rim behind the ribbon */}
+      <pointLight position={[0, 1.5, -3]} intensity={1.1} color="#C8A047" distance={16} />
+      {/* Red kicker for the streaming glow */}
+      <pointLight position={[3, -1, 2]} intensity={0.7} color="#E50914" distance={14} />
     </>
   );
 }

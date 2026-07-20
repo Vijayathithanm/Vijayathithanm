@@ -3,23 +3,19 @@
 @tailwind utilities;
 
 /* ─────────────────────────────────────────────────────────────
-   Ilaiyaraaja — global styles
-   Pure-white, gallery-minimal. Charcoal ink, a single gold accent.
+   Ilaiyaraaja — cinematic streaming theme
+   Near-black canvas, white text, streaming-red + gold accents.
    ───────────────────────────────────────────────────────────── */
 
 :root {
-  --paper: 255 255 255;
-  --ink: 26 26 26;
-  --gold: 200 160 71;
+  color-scheme: dark;
 }
 
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
-  background: #ffffff;
+  background: #141414;
 }
-
-/* Lenis smooth-scroll hooks (JS falls back to native scroll if disabled) */
 html.lenis,
 html.lenis body {
   height: auto;
@@ -29,40 +25,49 @@ html.lenis body {
 }
 
 body {
-  @apply bg-paper text-ink antialiased font-sans;
+  @apply bg-ink text-white antialiased font-sans;
   overflow-x: hidden;
 }
 
 ::selection {
-  background: rgb(var(--gold) / 0.22);
-  color: rgb(var(--ink));
+  background: rgba(229, 9, 20, 0.35);
+  color: #fff;
 }
 
-/* ── Fixed 3D stage sits behind everything ─────────────────── */
-.scene-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none; /* per-object interaction re-enabled in the Canvas */
+/* Hide horizontal scrollbars on the content rows (drag/arrow driven) */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
-/* Content flows above the stage. It is transparent so the white 3D
-   canvas shows through as one continuous surface.
-   `pointer-events: none` lets the cursor reach 3D objects in the gaps;
-   individual interactive elements opt back in via `.interactive`. */
-.content-layer {
-  position: relative;
-  z-index: 10;
-  pointer-events: none;
+/* Page scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
 }
-.interactive {
-  pointer-events: auto;
+::-webkit-scrollbar-track {
+  background: #141414;
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #E50914;
 }
 
-/* ── Reveal-on-scroll (IntersectionObserver toggles .is-visible) ── */
+:focus-visible {
+  outline: 2px solid #e50914;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Reveal-on-scroll */
 .reveal {
   opacity: 0;
-  transform: translateY(28px);
+  transform: translateY(26px);
   transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: opacity, transform;
 }
@@ -71,29 +76,14 @@ body {
   transform: none;
 }
 
-/* ── Thin scrollbar ─────────────────────────────────────────── */
-::-webkit-scrollbar {
-  width: 9px;
+/* Cinematic gradient scrims used across billboards & cards */
+.scrim-bottom {
+  background: linear-gradient(to top, #141414 6%, rgba(20, 20, 20, 0.6) 40%, rgba(20, 20, 20, 0) 75%);
 }
-::-webkit-scrollbar-track {
-  background: #ffffff;
-}
-::-webkit-scrollbar-thumb {
-  background: #dcdcdc;
-  border-radius: 9px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #c8a047;
+.scrim-left {
+  background: linear-gradient(to right, #141414 0%, rgba(20, 20, 20, 0.75) 35%, rgba(20, 20, 20, 0) 70%);
 }
 
-/* ── Focus ring for keyboard users ──────────────────────────── */
-:focus-visible {
-  outline: 2px solid rgb(var(--gold));
-  outline-offset: 3px;
-  border-radius: 2px;
-}
-
-/* ── Reduced motion: freeze non-essential animation everywhere ── */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

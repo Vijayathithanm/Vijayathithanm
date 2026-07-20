@@ -29,15 +29,15 @@ export const nav: NavItem[] = [
   { label: 'Home', href: '#home' },
   {
     label: 'Compositions',
-    href: '#latest-posts',
+    href: '#compositions',
     children: [
-      { label: 'Movies', href: '#latest-posts' },
-      { label: 'Albums', href: '#latest-posts' },
+      { label: 'Movies', href: '#compositions' },
+      { label: 'Albums', href: '#compositions' },
     ],
   },
-  { label: 'Concerts', href: '#latest-posts' },
+  { label: 'Concerts', href: '#concerts' },
   { label: 'Maestroverse', href: '#latest-news' },
-  { label: 'Live In', href: '#latest-posts' },
+  { label: 'Live In', href: '#concerts' },
   { label: 'Awards', href: '#facets' },
   { label: 'E-Shopping', href: '#footer' },
   {
@@ -174,3 +174,54 @@ export const footer = {
   ],
   copyright: '© 2023 ilaiyaraajalive.com. All rights reserved.',
 };
+
+/* ───────────────────────────────────────────────────────────────
+   CINEMATIC (Netflix-style) MODEL
+   A shared "title" shape powers the billboard hero and every row.
+   ─────────────────────────────────────────────────────────────── */
+
+export type Title = {
+  id: string;
+  title: string;
+  meta: string; // small line: year · genre · language
+  description: string;
+  poster: string; // portrait art (2:3) for row cards — SWAP for real art
+  backdrop?: string; // wide art for the billboard — SWAP for real art
+  badge?: string; // e.g. "New", "Top 10"
+  rank?: number; // populates a Top-10 style numeral
+};
+
+/** The big billboard at the top of the page. */
+export const featured = {
+  kicker: 'Netflix Collaboration',
+  title: 'ILAIYARAAJA',
+  tagline: 'The maestro scores Stranger Things',
+  description: latestNews.feature.body,
+  meta: '2025 · Original Score · Tamil · Telugu · U/A',
+  backdrop: '/placeholder-hero-1.svg', // SWAP: real cinematic backdrop
+};
+
+/**
+ * Iconic compositions — a curated filmography the maestro scored.
+ * (Real films; posters are placeholders — SWAP with real artwork.)
+ */
+export const films: Title[] = [
+  { id: 'mullum-malarum', title: 'Mullum Malarum', meta: '1978 · Drama · Tamil', description: 'The score that announced a new voice in Indian film music.', poster: '/poster-mullum-malarum.svg' },
+  { id: 'sagara-sangamam', title: 'Sagara Sangamam', meta: '1983 · Musical · Telugu', description: 'A dancer’s tragedy set to some of the maestro’s most beloved melodies.', poster: '/poster-sagara-sangamam.svg' },
+  { id: 'sindhu-bhairavi', title: 'Sindhu Bhairavi', meta: '1985 · Musical · Tamil', description: 'Carnatic tradition meets cinema — a National Award-winning score.', poster: '/poster-sindhu-bhairavi.svg' },
+  { id: 'mouna-ragam', title: 'Mouna Ragam', meta: '1986 · Romance · Tamil', description: 'Tender, aching themes for a modern love story.', poster: '/poster-mouna-ragam.svg' },
+  { id: 'punnagai-mannan', title: 'Punnagai Mannan', meta: '1986 · Drama · Tamil', description: 'Sweeping romance and the unforgettable “Theme Music”.', poster: '/poster-punnagai-mannan.svg' },
+  { id: 'nayakan', title: 'Nayakan', meta: '1987 · Crime · Tamil', description: 'An epic gangster saga carried by a haunting, iconic score.', poster: '/poster-nayakan.svg', badge: 'Top 10', rank: 1 },
+  { id: 'geethanjali', title: 'Geethanjali', meta: '1989 · Romance · Telugu', description: 'Youthful, luminous melodies for a bittersweet romance.', poster: '/poster-geethanjali.svg' },
+  { id: 'thalapathi', title: 'Thalapathi', meta: '1991 · Drama · Tamil', description: 'Friendship and fate, scored with grandeur and restraint.', poster: '/poster-thalapathi.svg', badge: 'Top 10', rank: 2 },
+  { id: 'mahanadhi', title: 'Mahanadhi', meta: '1994 · Drama · Tamil', description: 'A father’s ruin, underscored with quiet devastation.', poster: '/poster-mahanadhi.svg' },
+  { id: 'hey-ram', title: 'Hey Ram', meta: '2000 · Historical · Tamil', description: 'A sweeping historical canvas and a period-perfect score.', poster: '/poster-hey-ram.svg' },
+];
+
+/** Concerts & Live In — wide cards. */
+export const concerts: Title[] = [
+  { id: 'maestroverse-london', title: 'Maestroverse · London', meta: 'Live In · Symphony', description: 'The maestro conducts a full orchestra through decades of hits.', poster: '/placeholder-hero-2.svg' },
+  { id: 'live-chennai', title: 'Live In Chennai', meta: 'Live In · Home Ground', description: 'A hometown crowd, a night of unforgettable melodies.', poster: '/placeholder-hero-1.svg' },
+  { id: 'symphony-singapore', title: 'Symphony · Singapore', meta: 'Live In · World Tour', description: 'Ilaiyaraaja’s music reimagined for the concert hall.', poster: '/placeholder-news.svg' },
+];
+

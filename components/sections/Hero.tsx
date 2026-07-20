@@ -1,33 +1,32 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react';
-import { hero } from '@/content/site';
+import dynamic from 'next/dynamic';
+import { useState } from 'react';
+import { Play, Pause, Info } from 'lucide-react';
+import { featured, latestNews, type Title } from '@/content/site';
 import { audioEngine } from '@/lib/audio';
-import { scrollToHash, asset } from '@/lib/utils';
-import { useReducedMotion } from '@/lib/hooks';
+import { asset } from '@/lib/utils';
+import { useTitleModal } from '@/components/ui/TitleModal';
 
-/**
- * Hero — big title + subtitle, a crossfading banner carousel (prev/next), and
- * the play/pause control that makes the 3D sound ribbon react to audio.
- */
+/* The 3D ribbon is code-split & client-only so it never blocks first paint. */
+const HeroCanvas = dynamic(() => import('@/components/three/HeroCanvas'), { ssr: false, loading: () => null });
+
+/** Details payload for the billboard's "More Info" modal. */
+const featuredTitle: Title = {
+  id: 'featured',
+  title: featured.title,
+  meta: featured.meta,
+  description: featured.description,
+  poster: featured.backdrop,
+  backdrop: featured.backdrop,
+  badge: featured.kicker,
+};
+
 export default function Hero() {
-  const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
-  const reduced = useReducedMotion();
-  const count = hero.banners.length;
+  const { open } = useTitleModal();
 
-  // Auto-advance the carousel (paused under reduced motion).
-  useEffect(() => {
-    if (reduced) return;
-    const id = setInterval(() => setIndex((i) => (i + 1) % count), 6000);
-    return () => clearInterval(id);
-  }, [reduced, count]);
-
-  const prev = () => setIndex((i) => (i - 1 + count) % count);
-  const next = () => setIndex((i) => (i + 1) % count);
-
-  const toggleAudio = async () => {
+  const togglePlay = async () => {
     if (playing) {
       audioEngine.pause();
       setPlaying(false);
@@ -38,98 +37,67 @@ export default function Hero() {
   };
 
   return (
-    <section
-      id="home"
-      className="relative flex min-h-[100svh] items-center pt-28 pb-16"
-      aria-label="Hero"
-    >
-      <div className="mx-auto grid w-full max-w-content gap-10 px-5 md:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-        {/* Left: title + controls */}
-        <div className="reveal">
-          <p className="mb-4 text-xs uppercase tracking-widest2 text-gold">
-            Isaignani · The Maestro
+    <section id="home" className="relative flex min-h-[100svh] items-center overflow-hidden" aria-label="Featured">
+      {/* Backdrop */}
+      {/* SWAP: replace with a real cinematic backdrop (content/site.ts) */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={asset(featured.backdrop)}
+        alt=""
+        aria-hidden
+        className="absolute inset-0 h-full w-full object-cover opacity-20"
+      />
+      {/* Scrims for legibility */}
+      <div className="absolute inset-0 bg-ink/50" />
+      <div className="absolute inset-0 scrim-left" />
+      <div className="absolute inset-x-0 bottom-0 h-40 scrim-bottom" />
+
+      {/* 3D audio-reactive ribbon floats over the darkened stage */}
+      <div className="pointer-events-none absolute inset-0 z-10">
+        <HeroCanvas />
+      </div>
+
+      {/* Content */}
+      <div className="relative z-20 mx-auto w-full max-w-content px-5 pt-24 md:px-12">
+        <div className="max-w-2xl reveal">
+          <p className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-widest2 text-red">
+            <span className="font-display text-lg tracking-normal">N</span> {featured.kicker}
           </p>
-          <h1 className="font-display text-6xl font-black leading-[0.95] text-ink sm:text-7xl md:text-8xl">
-            {hero.title}
+          <h1 className="font-display text-6xl leading-[0.92] tracking-wide text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)] sm:text-7xl md:text-8xl">
+            {featured.title}
           </h1>
-          <p className="mt-6 max-w-xl text-base leading-relaxed text-muted md:text-lg">
-            {hero.subtitle}
+          <p className="mt-3 text-lg font-medium text-gold md:text-2xl">{featured.tagline}</p>
+          <p className="mt-5 max-w-xl text-sm leading-relaxed text-white/85 md:text-base">
+            {featured.description}
           </p>
 
-          <div className="mt-9 flex flex-wrap items-center gap-4">
-            <a
-              href={hero.cta.href}
-              onClick={(e) => {
-                e.preventDefault();
-                scrollToHash(hero.cta.href);
-              }}
-              className="interactive rounded-full bg-ink px-7 py-3 text-sm font-medium text-white transition-colors hover:bg-gold"
-            >
-              {hero.cta.label}
-            </a>
-
-            {/* Play/pause — drives the audio-reactive ribbon */}
+          <div className="mt-8 flex flex-wrap items-center gap-3">
             <button
               type="button"
-              onClick={toggleAudio}
+              onClick={togglePlay}
               aria-pressed={playing}
-              className="interactive group flex items-center gap-3 rounded-full border border-line px-5 py-3 text-sm font-medium text-ink transition-colors hover:border-gold hover:text-gold"
+              className="flex items-center gap-2 rounded bg-white px-7 py-3 text-base font-bold text-black transition-colors hover:bg-white/80"
             >
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-ink text-white transition-colors group-hover:bg-gold">
-                {playing ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
-              </span>
-              {playing ? 'Pause theme' : 'Play theme'}
+              {playing ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
+              {playing ? 'Pause' : 'Play'}
+            </button>
+            <button
+              type="button"
+              onClick={() => open(featuredTitle)}
+              className="flex items-center gap-2 rounded bg-white/20 px-7 py-3 text-base font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/30"
+            >
+              <Info size={20} /> More Info
             </button>
           </div>
-          <p className="mt-3 text-xs text-faint">
-            Play to let the ribbon dance to the music — pause for calm motion.
+          <p className="mt-3 text-xs text-white/50">
+            Press Play to let the sound ribbon dance to the score.
           </p>
         </div>
+      </div>
 
-        {/* Right: crossfading banner carousel */}
-        <div className="reveal">
-          <div className="interactive relative aspect-[4/3] overflow-hidden rounded-2xl border border-line bg-white shadow-[0_30px_80px_-40px_rgba(0,0,0,0.35)]">
-            {hero.banners.map((b, i) => (
-              // SWAP: replace placeholder banners with real artwork (see content/site.ts)
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={b.src}
-                src={asset(b.src)}
-                alt={b.alt}
-                loading={i === 0 ? 'eager' : 'lazy'}
-                className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
-                  i === index ? 'opacity-100' : 'opacity-0'
-                }`}
-              />
-            ))}
-
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-black/40 to-transparent p-4">
-              <span className="text-xs font-medium text-white">
-                {hero.banners[index].caption}
-              </span>
-              <span className="text-xs text-white/80">
-                {index + 1} / {count}
-              </span>
-            </div>
-
-            <button
-              type="button"
-              onClick={prev}
-              aria-label="Previous banner"
-              className="interactive absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/85 p-2 text-ink transition-colors hover:bg-gold hover:text-white"
-            >
-              <ChevronLeft size={18} />
-            </button>
-            <button
-              type="button"
-              onClick={next}
-              aria-label="Next banner"
-              className="interactive absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/85 p-2 text-ink transition-colors hover:bg-gold hover:text-white"
-            >
-              <ChevronRight size={18} />
-            </button>
-          </div>
-        </div>
+      {/* Age/quality chip, Netflix-style */}
+      <div className="absolute bottom-24 right-0 z-20 hidden items-center gap-3 border-l-2 border-white/60 bg-black/30 py-1.5 pl-3 pr-8 text-sm text-white md:flex">
+        {latestNews.feature.kicker}
       </div>
     </section>
   );
