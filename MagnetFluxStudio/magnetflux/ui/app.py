@@ -25,6 +25,10 @@ def run_app(config: AppConfig | None = None) -> int:
     app.setApplicationName(APP_NAME)
     app.setOrganizationName(APP_ORG)
 
+    from magnetflux.ui.theme import Theme, stylesheet
+
+    app.setStyleSheet(stylesheet(Theme.LIGHT))
+
     window = MainWindow(config)
 
     def show_crash(text: str) -> None:
