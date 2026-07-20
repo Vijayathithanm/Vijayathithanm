@@ -1,163 +1,136 @@
 'use client';
 
-import dynamic from 'next/dynamic';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowDown, Linkedin, Mail, MapPin } from 'lucide-react';
-import { equations, profile } from '@/content/resume';
-import MagneticButton from '@/components/ui/MagneticButton';
-import Typewriter from '@/components/ui/Typewriter';
+import { useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react';
+import { hero } from '@/content/site';
+import { audioEngine } from '@/lib/audio';
+import { scrollToHash } from '@/lib/utils';
+import { useReducedMotion } from '@/lib/hooks';
 
-const HeroScene = dynamic(() => import('@/components/three/HeroScene'), { ssr: false });
-
+/**
+ * Hero — big title + subtitle, a crossfading banner carousel (prev/next), and
+ * the play/pause control that makes the 3D sound ribbon react to audio.
+ */
 export default function Hero() {
-  const { scrollY } = useScroll();
-  const yText = useTransform(scrollY, [0, 600], [0, 140]);
-  const opacity = useTransform(scrollY, [0, 500], [1, 0]);
+  const [index, setIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const reduced = useReducedMotion();
+  const count = hero.banners.length;
+
+  // Auto-advance the carousel (paused under reduced motion).
+  useEffect(() => {
+    if (reduced) return;
+    const id = setInterval(() => setIndex((i) => (i + 1) % count), 6000);
+    return () => clearInterval(id);
+  }, [reduced, count]);
+
+  const prev = () => setIndex((i) => (i - 1 + count) % count);
+  const next = () => setIndex((i) => (i + 1) % count);
+
+  const toggleAudio = async () => {
+    if (playing) {
+      audioEngine.pause();
+      setPlaying(false);
+    } else {
+      await audioEngine.play();
+      setPlaying(true);
+    }
+  };
 
   return (
-    <section id="top" className="relative flex min-h-screen items-center overflow-hidden">
-      {/* layered background */}
-      <div className="eng-grid absolute inset-0 opacity-60" />
-      <div className="glow-orb left-[-10%] top-[-10%] h-[500px] w-[500px] bg-accent/20" />
-      <div className="glow-orb bottom-[-20%] right-[-5%] h-[600px] w-[600px] bg-accent2/15" />
-      <div className="absolute inset-0">
-        <HeroScene />
-      </div>
+    <section
+      id="home"
+      className="relative flex min-h-[100svh] items-center pt-28 pb-16"
+      aria-label="Hero"
+    >
+      <div className="mx-auto grid w-full max-w-content gap-10 px-5 md:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+        {/* Left: title + controls */}
+        <div className="reveal">
+          <p className="mb-4 text-xs uppercase tracking-widest2 text-gold">
+            Isaignani · The Maestro
+          </p>
+          <h1 className="font-display text-6xl font-black leading-[0.95] text-ink sm:text-7xl md:text-8xl">
+            {hero.title}
+          </h1>
+          <p className="mt-6 max-w-xl text-base leading-relaxed text-muted md:text-lg">
+            {hero.subtitle}
+          </p>
 
-      {/* floating engineering equations */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 hidden lg:block">
-        {equations.slice(0, 7).map((eq, i) => (
-          <motion.span
-            key={eq}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0.08, 0.28, 0.08], y: [0, -18, 0] }}
-            transition={{ duration: 7 + i * 1.3, repeat: Infinity, delay: i * 0.9 }}
-            className="absolute font-mono text-sm text-accent"
-            style={{
-              left: `${8 + ((i * 37) % 85)}%`,
-              top: `${12 + ((i * 29) % 72)}%`,
-            }}
-          >
-            {eq}
-          </motion.span>
-        ))}
-      </div>
-
-      <motion.div
-        style={{ y: yText, opacity }}
-        className="relative z-10 mx-auto w-full max-w-7xl px-5 pt-28 md:px-8"
-      >
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.35 }}
-          className="mb-6 inline-flex items-center gap-2 rounded-full border border-line bg-surface/60 px-4 py-2 font-mono text-xs tracking-widest text-muted backdrop-blur"
-        >
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
-          </span>
-          PH.D. · IIT MADRAS · OPEN TO OPPORTUNITIES
-        </motion.div>
-
-        <h1 className="font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl md:text-7xl xl:text-8xl">
-          <motion.span
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="block"
-          >
-            Vijayathithan
-          </motion.span>
-          <motion.span
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.65, ease: [0.22, 1, 0.36, 1] }}
-            className="text-gradient block"
-          >
-            Mathiyazhagan
-          </motion.span>
-        </h1>
-
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.85 }}
-          className="mt-6 flex min-h-[2.2rem] items-center font-mono text-lg text-muted md:text-2xl"
-        >
-          <span className="mr-3 text-accent">›</span>
-          <Typewriter words={profile.roles} />
-        </motion.div>
-
-        <motion.p
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 1 }}
-          className="mt-6 max-w-2xl text-base leading-relaxed text-muted md:text-lg"
-        >
-          {profile.tagline}. Engineering machines, coatings and simulations at{' '}
-          <span className="text-ink">{profile.company}</span>, from plasma physics to fatigue
-          life.
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 1.15 }}
-          className="mt-10 flex flex-wrap items-center gap-4"
-        >
-          <MagneticButton href="#projects">Explore Work</MagneticButton>
-          <MagneticButton href={profile.resumeFile} variant="ghost" download>
-            Download Resume
-          </MagneticButton>
-          <div className="ml-1 flex items-center gap-3">
+          <div className="mt-9 flex flex-wrap items-center gap-4">
             <a
-              href={profile.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="LinkedIn"
-              className="rounded-full border border-line p-3 text-muted transition-all hover:border-accent/60 hover:text-accent"
+              href={hero.cta.href}
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToHash(hero.cta.href);
+              }}
+              className="interactive rounded-full bg-ink px-7 py-3 text-sm font-medium text-white transition-colors hover:bg-gold"
             >
-              <Linkedin size={16} />
+              {hero.cta.label}
             </a>
-            <a
-              href={`mailto:${profile.email}`}
-              aria-label="Email"
-              className="rounded-full border border-line p-3 text-muted transition-all hover:border-accent/60 hover:text-accent"
+
+            {/* Play/pause — drives the audio-reactive ribbon */}
+            <button
+              type="button"
+              onClick={toggleAudio}
+              aria-pressed={playing}
+              className="interactive group flex items-center gap-3 rounded-full border border-line px-5 py-3 text-sm font-medium text-ink transition-colors hover:border-gold hover:text-gold"
             >
-              <Mail size={16} />
-            </a>
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-ink text-white transition-colors group-hover:bg-gold">
+                {playing ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
+              </span>
+              {playing ? 'Pause theme' : 'Play theme'}
+            </button>
           </div>
-        </motion.div>
+          <p className="mt-3 text-xs text-faint">
+            Play to let the ribbon dance to the music — pause for calm motion.
+          </p>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.4 }}
-          className="mt-8 flex items-center gap-2 font-mono text-xs text-faint"
-        >
-          <MapPin size={12} /> {profile.location} · {profile.availability}
-        </motion.div>
-      </motion.div>
+        {/* Right: crossfading banner carousel */}
+        <div className="reveal">
+          <div className="interactive relative aspect-[4/3] overflow-hidden rounded-2xl border border-line bg-white shadow-[0_30px_80px_-40px_rgba(0,0,0,0.35)]">
+            {hero.banners.map((b, i) => (
+              // SWAP: replace placeholder banners with real artwork (see content/site.ts)
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={b.src}
+                src={b.src}
+                alt={b.alt}
+                loading={i === 0 ? 'eager' : 'lazy'}
+                className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+                  i === index ? 'opacity-100' : 'opacity-0'
+                }`}
+              />
+            ))}
 
-      {/* scroll indicator */}
-      <motion.a
-        href="#about"
-        aria-label="Scroll down"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.8 }}
-        className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2"
-      >
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.8, repeat: Infinity }}
-          className="flex flex-col items-center gap-2 text-faint"
-        >
-          <span className="font-mono text-[10px] tracking-[0.3em]">SCROLL</span>
-          <ArrowDown size={14} />
-        </motion.div>
-      </motion.a>
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-black/40 to-transparent p-4">
+              <span className="text-xs font-medium text-white">
+                {hero.banners[index].caption}
+              </span>
+              <span className="text-xs text-white/80">
+                {index + 1} / {count}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={prev}
+              aria-label="Previous banner"
+              className="interactive absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/85 p-2 text-ink transition-colors hover:bg-gold hover:text-white"
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <button
+              type="button"
+              onClick={next}
+              aria-label="Next banner"
+              className="interactive absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/85 p-2 text-ink transition-colors hover:bg-gold hover:text-white"
+            >
+              <ChevronRight size={18} />
+            </button>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }

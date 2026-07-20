@@ -1,138 +1,102 @@
-# 👋 Hi, I'm Vijayathithan — this is my engineering portfolio
+# Ilaiyaraaja — Interactive 3D Experience
 
-A premium, dark-themed, fully animated portfolio for a Mechanical R&D Engineer /
-Simulation Scientist — built with Next.js, TypeScript, Tailwind CSS, Framer
-Motion, GSAP, Three.js (React Three Fiber) and Lenis smooth scroll.
-
-**Live sections:** Hero (3D CAD-wireframe gears + particles + floating
-equations) · About & animated stats · Professional timeline · Projects with
-filtering & animated SVG schematics · COMSOL simulation showcase · VMC flagship
-programme · Publications · Skills (radar chart + progress bars) ·
-Certifications · Contact (glassmorphism form) · Resume download.
+A single-page, gallery-minimal tribute to the maestro **Ilaiyaraaja**, built
+with **React Three Fiber** + **@react-three/drei** for a persistent white 3D
+stage and **Tailwind CSS** for the 2D overlay. Pure-white background, charcoal
+ink, one restrained gold accent.
 
 ---
 
-## Quick start
+## Run it
 
 ```bash
 npm install
-npm run dev        # http://localhost:3000
-npm run build      # static export → ./out
+npm run dev      # http://localhost:3000
+npm run build    # static export → ./out  (no server needed)
 ```
 
-The site is a **fully static export** (`output: 'export'`) — no server
-required. The `out/` folder can be hosted anywhere.
+The site is a **static export** (`output: 'export'`) — the `out/` folder can be
+hosted on any static host.
 
-## Editing content — no code required
+---
 
-**All content lives in [`content/resume.ts`](content/resume.ts).**
-Profile, stats, experience, education, projects, simulations, VMC phases,
-publications, skills, certifications and SEO strings are plain typed objects.
-Edit that one file and rebuild — no component ever hardcodes content.
+## The 3D concept
 
-To update the downloadable resume, replace
-`public/resume/Vijayathithan_Mathiyazhagan_CV.docx` (a PDF works too — update
-`profile.resumeFile` in `content/resume.ts` to match the new filename).
+- **Sound ribbon (hero centrepiece)** — one indexed plane geometry whose
+  vertices undulate like a waveform via layered sine noise. Pressing **Play**
+  routes a soft synthesised ambient chord through a Web Audio `AnalyserNode`,
+  and the ribbon amplitude is driven by real frequency data; **Pause** settles
+  it into calm procedural motion. Matte charcoal surface, thin gold edge
+  highlights, a soft contact shadow, and a gentle tilt toward the cursor.
+  _(To drive it from a real recording, drop `public/audio/theme.mp3` and follow
+  the clearly-marked `SWAP` block in [`lib/audio.ts`](lib/audio.ts).)_
+- **Vinyl gallery** — the Facets and Latest Posts appear as upright vinyl
+  records on the same white stage, slowly spinning. One disc geometry +
+  material is **reused** across every record; only the label textures differ.
+  Hover slows the spin, scales up, lifts and glows gold; click flips a record
+  to reveal its description on the back.
+- **Scroll-driven camera** — as you scroll, the camera pulls back and pans so
+  the ribbon recedes and the gallery rotates into frame. Biography, Latest
+  News and the footer float above as 2D panels, so the white 3D stage stays
+  continuous behind all content.
 
-### Adding your photo
+### Performance & accessibility
 
-The About/Hero currently use a monogram + 3D scene. To add a portrait, drop
-`public/images/profile.jpg` into the repo and reference it from any section
-(e.g. add an `<Image>` in `components/sections/About.tsx`).
+- Three.js scene is `dynamic(..., { ssr: false })` and code-split — initial
+  first-load JS for the page is ~101 kB; the WebGL bundle loads after.
+- Capped pixel ratio, adaptive DPR, fewer ribbon segments on mobile, one
+  shared record geometry/material, and heavy work **pauses when the tab is
+  hidden**.
+- `prefers-reduced-motion` is respected everywhere: the ribbon freezes into a
+  static curve, records stop spinning, reveal animations and Lenis smooth
+  scroll are disabled.
+- Keyboard-navigable nav dropdowns (`aria-expanded`, Escape to close), alt text
+  on every image, focus-visible rings, and a `<noscript>` fallback so content
+  is never left hidden.
+
+---
 
 ## Architecture
 
 ```
-app/                    Next.js App Router
-  layout.tsx            Fonts, metadata, Open Graph, JSON-LD Person schema
-  page.tsx              Section composition
-  globals.css           Design tokens (dark/light), grid & blueprint utilities
-  robots.ts sitemap.ts  SEO (static-export compatible)
+app/
+  layout.tsx          Fonts (Playfair Display + Inter), metadata, JSON-LD
+  page.tsx            Renders <App/>
+  globals.css         White/gold tokens, scene layering, reveal + reduced-motion
+  robots.ts sitemap.ts SEO (static-export compatible)
 content/
-  resume.ts             ★ Single source of truth for every word on the site
+  site.ts             ★ Single source of truth for all copy & links
 components/
-  providers/            Lenis smooth scroll + GSAP ScrollTrigger wiring
-  three/HeroScene.tsx   R3F scene — procedural wireframe gears + particle field
-  sections/             Hero, About, Timeline, Projects, Simulations, Vmc,
-                        Publications, Skills, Certifications, Contact
-  ui/                   Reusable animation primitives:
-                        Reveal, SectionHeading (split-text), MagneticButton,
-                        CountUp, Typewriter, TiltCard, RadarChart,
-                        ProjectVisual (custom animated SVG schematics)
-lib/utils.ts            Helpers
-public/resume/          Downloadable CV
-vercel.json             Deployment + caching + security headers
+  App.tsx             Composition; below-the-fold sections are code-split
+  Providers.tsx       Lenis smooth scroll + scroll/pointer/visibility → store
+  Navbar.tsx  Footer.tsx
+  Scene.tsx           Lazy, client-only wrapper around the Canvas
+  three/
+    SceneCanvas.tsx   Canvas, lights, contact shadow, perf guards
+    SoundRibbon.tsx   Audio-reactive waveform ribbon
+    VinylGallery.tsx  Shared-geometry record gallery
+    VinylRecord.tsx   One reusable, interactive record
+    Rig.tsx  Lights.tsx
+  sections/           Hero, Biography, LatestPosts, LatestNews, Facets
+  ui/TiltCard.tsx     Cursor-tilt / lift card
+lib/
+  store.ts            Frame-loop shared state (no re-renders)
+  audio.ts            Web Audio engine + AnalyserNode
+  hooks.ts  utils.ts
 ```
 
-## Design system
+## Swapping in real assets
 
-- **Theme** — dark by default (deep engineering navy), light mode via the
-  navbar toggle, persisted in `localStorage`, no flash-of-wrong-theme
-  (inline script in `<head>`).
-- **Tokens** — all colors are CSS variables (`--bg`, `--ink`, `--accent`, …)
-  consumed by Tailwind, so retheming is a 10-line change in `globals.css`.
-- **Type** — Space Grotesk (display) · Inter (body) · JetBrains Mono
-  (technical labels), self-hosted via `next/font`.
-- **Signature details** — blueprint corner-tick cards, engineering grid
-  backgrounds, scan-line hovers, floating governing equations, magnetic
-  buttons, cursor glow, custom animated SVG schematics per project (magnetron
-  field lines, VMC kinematics, DLC layer stack, CFRP drilling, AE signal,
-  robot path).
+All copy lives in [`content/site.ts`](content/site.ts). Every placeholder is
+marked — search the codebase for **`SWAP`** to find each spot:
 
-## Performance & accessibility
-
-- Static export, code-split; the Three.js scene is `dynamic(..., {ssr:false})`
-  and lazy-loaded — first-load JS for the page is ~153 kB gzipped.
-- GPU-only animations (transforms/opacity), `requestAnimationFrame` batching
-  for pointer effects, `prefers-reduced-motion` respected globally (Lenis and
-  CSS animations disabled).
-- Semantic landmarks, labelled controls, `aria-expanded` on disclosure
-  buttons, keyboard-reachable interactive elements, WCAG-conscious contrast in
-  both themes.
-- SEO: full metadata, Open Graph, Twitter cards, `robots.txt`, `sitemap.xml`,
-  and a JSON-LD `Person` schema generated from `content/resume.ts`.
-
-## Deployment
-
-### GitHub Pages (configured — deploys automatically)
-
-The workflow in `.github/workflows/deploy.yml` builds the static export and
-publishes it to GitHub Pages on every push to `main`.
-
-**One-time setup:** repo **Settings → Pages → Build and deployment →
-Source: GitHub Actions**. That's it — the next push to `main` (or a manual
-run from the Actions tab) deploys to:
-
-```
-https://vijayathithanm.github.io/Vijayathithanm/
-```
-
-The workflow auto-detects the base path: if you later rename the repo to
-`Vijayathithanm.github.io`, the site serves from the domain root with no
-config change (update `seo.siteUrl` in `content/resume.ts` to match).
-
-### Any other static host (Netlify, S3, nginx…)
-
-```bash
-npm run build   # produces ./out — upload as-is
-```
-
-A `vercel.json` is also included in case you ever want one-click Vercel
-hosting; it is inert otherwise.
-
-### Contact form
-
-The form opens the visitor's mail client pre-filled (zero backend, works on
-static hosting). To capture submissions instead, point the form at a
-[Formspree](https://formspree.io) endpoint in
-`components/sections/Contact.tsx` — one URL change.
-
-### Analytics
-
-Add your snippet (e.g. Vercel Analytics, Plausible, GA4) in
-`app/layout.tsx` — the layout is the single injection point.
+- Hero banners, post/news/facet images → drop real files in `public/images/…`
+  and update the paths in `content/site.ts`.
+- Biography intro film → `public/video/intro.mp4` (a `.mov` source can be added
+  alongside).
+- Real audio track for the ribbon → `public/audio/theme.mp3` (see `lib/audio.ts`).
 
 ## Tech
 
-Next.js 14 · React 18 · TypeScript · Tailwind CSS · Framer Motion · GSAP +
-ScrollTrigger · Three.js + React Three Fiber · Lenis · Lucide icons.
+Next.js 14 · React 18 · TypeScript · React Three Fiber + drei · Three.js ·
+Tailwind CSS · Framer Motion · Lenis · Lucide icons.
