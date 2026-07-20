@@ -1,7 +1,7 @@
 'use client';
 
 import { facets } from '@/content/site';
-import { scrollToHash } from '@/lib/utils';
+import { scrollToHash, asset } from '@/lib/utils';
 import TiltCard from '@/components/ui/TiltCard';
 
 /**
@@ -39,7 +39,7 @@ export default function Facets() {
                   {/* SWAP: replace placeholder with a real facet image (content/site.ts) */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={card.image}
+                    src={asset(card.image)}
                     alt={card.title}
                     loading="lazy"
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react';
 import { hero } from '@/content/site';
 import { audioEngine } from '@/lib/audio';
-import { scrollToHash } from '@/lib/utils';
+import { scrollToHash, asset } from '@/lib/utils';
 import { useReducedMotion } from '@/lib/hooks';
 
 /**
@@ -94,7 +94,7 @@ export default function Hero() {
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 key={b.src}
-                src={b.src}
+                src={asset(b.src)}
                 alt={b.alt}
                 loading={i === 0 ? 'eager' : 'lazy'}
                 className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${

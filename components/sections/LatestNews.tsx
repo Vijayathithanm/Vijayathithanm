@@ -1,7 +1,7 @@
 'use client';
 
 import { latestNews } from '@/content/site';
-import { scrollToHash } from '@/lib/utils';
+import { scrollToHash, asset } from '@/lib/utils';
 
 /** Latest News — the Netflix / Stranger Things feature card. */
 export default function LatestNews() {
@@ -21,7 +21,7 @@ export default function LatestNews() {
             {/* SWAP: replace placeholder with the real news image (content/site.ts) */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={f.image}
+              src={asset(f.image)}
               alt={f.title}
               loading="lazy"
               className="h-full w-full object-cover"

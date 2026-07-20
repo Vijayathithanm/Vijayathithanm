@@ -1,7 +1,7 @@
 'use client';
 
 import { biography } from '@/content/site';
-import { scrollToHash } from '@/lib/utils';
+import { scrollToHash, asset } from '@/lib/utils';
 
 /** Biography — intro film placeholder + short copy + CTA. */
 export default function Biography() {
@@ -16,9 +16,9 @@ export default function Biography() {
             className="aspect-video w-full bg-black/5"
             controls
             preload="none"
-            poster={biography.video.poster}
+            poster={asset(biography.video.poster)}
           >
-            <source src={biography.video.src} type="video/mp4" />
+            <source src={asset(biography.video.src)} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         </div>
