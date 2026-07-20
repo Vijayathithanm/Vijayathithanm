@@ -2,9 +2,9 @@
 
 import { Info } from 'lucide-react';
 import { films, concerts, facets, latestPosts, latestNews, type Title } from '@/content/site';
-import { asset } from '@/lib/utils';
 import Row from '@/components/rows/Row';
 import { useTitleModal } from '@/components/ui/TitleModal';
+import Img from '@/components/ui/Img';
 
 /* Map the existing facet / post content onto the shared Title shape. */
 const facetTitles: Title[] = facets.cards.map((c, i) => ({
@@ -52,18 +52,16 @@ export default function Catalog() {
           className="group relative block w-full overflow-hidden rounded-xl border border-line text-left"
           aria-label={`${newsTitle.title} — more info`}
         >
-          <div className="relative aspect-[16/7] w-full md:aspect-[21/7]">
-            {/* SWAP: real news artwork (content/site.ts) */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={asset(newsTitle.poster)} alt={newsTitle.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+          <div className="relative aspect-[16/8] w-full md:aspect-[21/7]">
+            <Img src={newsTitle.poster} alt={newsTitle.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" fallback="/placeholder-news.svg" />
             <div className="absolute inset-0 scrim-left" />
             <div className="absolute inset-y-0 left-0 flex max-w-xl flex-col justify-center p-6 md:p-10">
               <span className="mb-3 w-fit rounded bg-red px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white">
                 {latestNews.feature.kicker}
               </span>
-              <h3 className="font-display text-3xl tracking-wide text-white md:text-5xl">{newsTitle.title}</h3>
-              <p className="mt-3 line-clamp-3 text-sm text-white/80 md:text-base">{latestNews.feature.body}</p>
-              <span className="mt-5 flex w-fit items-center gap-2 rounded bg-white/20 px-5 py-2 text-sm font-semibold text-white backdrop-blur-sm transition-colors group-hover:bg-white/30">
+              <h3 className="font-display text-3xl tracking-wide text-ink md:text-5xl">{newsTitle.title}</h3>
+              <p className="mt-3 line-clamp-3 text-sm text-muted md:text-base">{latestNews.feature.body}</p>
+              <span className="mt-5 flex w-fit items-center gap-2 rounded bg-red px-5 py-2 text-sm font-semibold text-white transition-colors group-hover:bg-red-dark">
                 <Info size={16} /> More Info
               </span>
             </div>

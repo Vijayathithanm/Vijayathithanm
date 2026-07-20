@@ -14,7 +14,7 @@ export default function Footer() {
   };
 
   return (
-    <footer id="footer" className="relative border-t border-line bg-black2" aria-label="Footer">
+    <footer id="footer" className="relative border-t border-line bg-panel" aria-label="Footer">
       <div className="mx-auto max-w-content px-5 py-14 md:px-8">
         <div className="mb-10 flex flex-wrap items-center gap-4">
           {footer.social.map((s) => (
@@ -24,7 +24,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={s.label}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-line text-white transition-colors hover:border-red hover:text-red"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-line text-ink transition-colors hover:border-red hover:text-red"
             >
               <Youtube size={18} />
             </a>
@@ -33,7 +33,7 @@ export default function Footer() {
 
         <div className="grid gap-10 text-sm md:grid-cols-4">
           <div>
-            <h3 className="font-display text-lg tracking-wide text-white">{footer.address.name}</h3>
+            <h3 className="font-display text-lg tracking-wide text-ink">{footer.address.name}</h3>
             <address className="mt-3 space-y-1 not-italic leading-relaxed text-faint">
               {footer.address.lines.map((line) => (
                 <p key={line}>{line}</p>

@@ -95,15 +95,8 @@ export default function SoundRibbon({ segments = 96 }: { segments?: number }) {
   return (
     <group ref={group} position={[0, 0.55, 0]}>
       <mesh geometry={geometry} castShadow receiveShadow>
-        {/* Dark, softly-lit ribbon surface that reads against the black stage */}
-        <meshStandardMaterial
-          color="#3a3a3a"
-          emissive="#E50914"
-          emissiveIntensity={0.06}
-          roughness={0.55}
-          metalness={0.35}
-          side={THREE.DoubleSide}
-        />
+        {/* Matte charcoal ribbon that reads cleanly on the white stage */}
+        <meshStandardMaterial color="#1A1A1A" roughness={0.8} metalness={0.1} side={THREE.DoubleSide} />
       </mesh>
       <primitive object={topLine} />
       <primitive object={botLine} />

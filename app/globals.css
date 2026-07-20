@@ -3,18 +3,18 @@
 @tailwind utilities;
 
 /* ─────────────────────────────────────────────────────────────
-   Ilaiyaraaja — cinematic streaming theme
-   Near-black canvas, white text, streaming-red + gold accents.
+   Ilaiyaraaja — bright cinematic theme
+   White canvas, near-black text, streaming-red + gold accents.
    ───────────────────────────────────────────────────────────── */
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
-  background: #141414;
+  background: #ffffff;
 }
 html.lenis,
 html.lenis body {
@@ -25,16 +25,16 @@ html.lenis body {
 }
 
 body {
-  @apply bg-ink text-white antialiased font-sans;
+  @apply bg-paper text-ink antialiased font-sans;
   overflow-x: hidden;
 }
 
 ::selection {
-  background: rgba(229, 9, 20, 0.35);
-  color: #fff;
+  background: rgba(229, 9, 20, 0.22);
+  color: #141414;
 }
 
-/* Hide horizontal scrollbars on the content rows (drag/arrow driven) */
+/* Hide horizontal scrollbars on the content rows */
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -48,14 +48,14 @@ body {
   width: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #141414;
+  background: #ffffff;
 }
 ::-webkit-scrollbar-thumb {
-  background: #333;
+  background: #d6d6d6;
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #E50914;
+  background: #e50914;
 }
 
 :focus-visible {
@@ -76,12 +76,16 @@ body {
   transform: none;
 }
 
-/* Cinematic gradient scrims used across billboards & cards */
+/* Gradient scrims — fade imagery into the white canvas so dark text reads. */
 .scrim-bottom {
-  background: linear-gradient(to top, #141414 6%, rgba(20, 20, 20, 0.6) 40%, rgba(20, 20, 20, 0) 75%);
+  background: linear-gradient(to top, #ffffff 4%, rgba(255, 255, 255, 0.65) 38%, rgba(255, 255, 255, 0) 72%);
 }
 .scrim-left {
-  background: linear-gradient(to right, #141414 0%, rgba(20, 20, 20, 0.75) 35%, rgba(20, 20, 20, 0) 70%);
+  background: linear-gradient(to right, #ffffff 0%, rgba(255, 255, 255, 0.82) 34%, rgba(255, 255, 255, 0) 68%);
+}
+/* Darker scrim used on top of imagery inside the modal header for white text. */
+.scrim-media {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 4%, rgba(0, 0, 0, 0.35) 40%, rgba(0, 0, 0, 0) 75%);
 }
 
 @media (prefers-reduced-motion: reduce) {

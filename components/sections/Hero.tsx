@@ -5,13 +5,12 @@ import { useState } from 'react';
 import { Play, Pause, Info } from 'lucide-react';
 import { featured, latestNews, type Title } from '@/content/site';
 import { audioEngine } from '@/lib/audio';
-import { asset } from '@/lib/utils';
 import { useTitleModal } from '@/components/ui/TitleModal';
+import Img from '@/components/ui/Img';
 
 /* The 3D ribbon is code-split & client-only so it never blocks first paint. */
 const HeroCanvas = dynamic(() => import('@/components/three/HeroCanvas'), { ssr: false, loading: () => null });
 
-/** Details payload for the billboard's "More Info" modal. */
 const featuredTitle: Title = {
   id: 'featured',
   title: featured.title,
@@ -37,22 +36,15 @@ export default function Hero() {
   };
 
   return (
-    <section id="home" className="relative flex min-h-[100svh] items-center overflow-hidden" aria-label="Featured">
-      {/* Backdrop */}
-      {/* SWAP: replace with a real cinematic backdrop (content/site.ts) */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={asset(featured.backdrop)}
-        alt=""
-        aria-hidden
-        className="absolute inset-0 h-full w-full object-cover opacity-20"
-      />
-      {/* Scrims for legibility */}
-      <div className="absolute inset-0 bg-ink/50" />
-      <div className="absolute inset-0 scrim-left" />
-      <div className="absolute inset-x-0 bottom-0 h-40 scrim-bottom" />
+    <section id="home" className="relative flex min-h-[100svh] items-center overflow-hidden bg-paper" aria-label="Featured">
+      {/* HD backdrop, feathered into the white canvas */}
+      <div className="absolute inset-y-0 right-0 w-full md:w-[68%]">
+        <Img src={featured.backdrop} alt="" loading="eager" className="h-full w-full object-cover" fallback="/placeholder-hero-1.svg" />
+        <div className="absolute inset-0 scrim-left" />
+        <div className="absolute inset-x-0 bottom-0 h-36 scrim-bottom" />
+      </div>
 
-      {/* 3D audio-reactive ribbon floats over the darkened stage */}
+      {/* 3D audio-reactive ribbon floats over the stage */}
       <div className="pointer-events-none absolute inset-0 z-10">
         <HeroCanvas />
       </div>
@@ -60,14 +52,14 @@ export default function Hero() {
       {/* Content */}
       <div className="relative z-20 mx-auto w-full max-w-content px-5 pt-24 md:px-12">
         <div className="max-w-2xl reveal">
-          <p className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-widest2 text-red">
+          <p className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-widest2 text-red">
             <span className="font-display text-lg tracking-normal">N</span> {featured.kicker}
           </p>
-          <h1 className="font-display text-6xl leading-[0.92] tracking-wide text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)] sm:text-7xl md:text-8xl">
+          <h1 className="font-display text-6xl leading-[0.92] tracking-wide text-ink sm:text-7xl md:text-8xl">
             {featured.title}
           </h1>
-          <p className="mt-3 text-lg font-medium text-gold md:text-2xl">{featured.tagline}</p>
-          <p className="mt-5 max-w-xl text-sm leading-relaxed text-white/85 md:text-base">
+          <p className="mt-3 text-lg font-semibold text-gold md:text-2xl">{featured.tagline}</p>
+          <p className="mt-5 max-w-xl text-sm leading-relaxed text-muted md:text-base">
             {featured.description}
           </p>
 
@@ -76,7 +68,7 @@ export default function Hero() {
               type="button"
               onClick={togglePlay}
               aria-pressed={playing}
-              className="flex items-center gap-2 rounded bg-white px-7 py-3 text-base font-bold text-black transition-colors hover:bg-white/80"
+              className="flex items-center gap-2 rounded bg-red px-7 py-3 text-base font-bold text-white transition-colors hover:bg-red-dark"
             >
               {playing ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
               {playing ? 'Pause' : 'Play'}
@@ -84,19 +76,19 @@ export default function Hero() {
             <button
               type="button"
               onClick={() => open(featuredTitle)}
-              className="flex items-center gap-2 rounded bg-white/20 px-7 py-3 text-base font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/30"
+              className="flex items-center gap-2 rounded bg-ink/5 px-7 py-3 text-base font-semibold text-ink ring-1 ring-inset ring-line transition-colors hover:bg-ink/10"
             >
               <Info size={20} /> More Info
             </button>
           </div>
-          <p className="mt-3 text-xs text-white/50">
+          <p className="mt-3 text-xs text-faint">
             Press Play to let the sound ribbon dance to the score.
           </p>
         </div>
       </div>
 
-      {/* Age/quality chip, Netflix-style */}
-      <div className="absolute bottom-24 right-0 z-20 hidden items-center gap-3 border-l-2 border-white/60 bg-black/30 py-1.5 pl-3 pr-8 text-sm text-white md:flex">
+      {/* Quality chip */}
+      <div className="absolute bottom-24 right-0 z-20 hidden items-center gap-3 border-l-2 border-red bg-paper/70 py-1.5 pl-3 pr-8 text-sm text-ink backdrop-blur-sm md:flex">
         {latestNews.feature.kicker}
       </div>
     </section>

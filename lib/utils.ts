@@ -7,6 +7,8 @@ export function cn(...classes: (string | false | null | undefined)[]) {
  * both at the domain root and under a GitHub Pages sub-path (/Vijayathithanm).
  */
 export function asset(path: string) {
+  // External URLs (real HD images from the internet) are used as-is.
+  if (/^https?:\/\//.test(path)) return path;
   const base = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
   return `${base}${path}`;
 }

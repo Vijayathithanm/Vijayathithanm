@@ -54,7 +54,7 @@ export default function Navbar() {
     <header
       className={cn(
         'fixed inset-x-0 top-0 z-50 transition-colors duration-500',
-        scrolled ? 'bg-ink/95 backdrop-blur-sm shadow-lg shadow-black/40' : 'bg-gradient-to-b from-black/80 to-transparent',
+        scrolled ? 'border-b border-line bg-paper/90 backdrop-blur-md shadow-sm' : 'bg-gradient-to-b from-white/90 to-transparent',
       )}
     >
       <nav aria-label="Primary" className="mx-auto flex max-w-content items-center gap-6 px-4 py-3.5 md:px-8">
@@ -77,20 +77,20 @@ export default function Navbar() {
                   aria-haspopup="true"
                   aria-expanded={openMenu === item.label}
                   onClick={() => setOpenMenu((m) => (m === item.label ? null : item.label))}
-                  className="flex items-center gap-1 text-sm text-muted transition-colors hover:text-white"
+                  className="flex items-center gap-1 text-sm text-ink transition-colors hover:text-red"
                 >
                   {item.label}
                   <ChevronDown size={13} className="mt-0.5" aria-hidden />
                 </button>
                 {openMenu === item.label && (
-                  <ul className="absolute left-0 top-full mt-2 min-w-48 rounded-md border border-line bg-black2/95 p-2 backdrop-blur" role="menu">
+                  <ul className="absolute left-0 top-full mt-2 min-w-48 rounded-md border border-line bg-paper/95 p-2 backdrop-blur" role="menu">
                     {item.children.map((child) => (
                       <li key={child.label} role="none">
                         <a
                           role="menuitem"
                           href={child.href}
                           onClick={(e) => go(e, child.href)}
-                          className="block rounded px-3 py-2 text-sm text-muted transition-colors hover:bg-line hover:text-white"
+                          className="block rounded px-3 py-2 text-sm text-ink transition-colors hover:bg-panel hover:text-red"
                         >
                           {child.label}
                         </a>
@@ -104,7 +104,7 @@ export default function Navbar() {
                 <a
                   href={item.href}
                   onClick={(e) => go(e, item.href)}
-                  className="text-sm text-muted transition-colors hover:text-white"
+                  className="text-sm text-ink transition-colors hover:text-red"
                 >
                   {item.label}
                 </a>
@@ -114,11 +114,11 @@ export default function Navbar() {
         </ul>
 
         {/* Right cluster */}
-        <div className="ml-auto flex items-center gap-4 text-white">
-          <button aria-label="Search" className="hidden text-white/90 transition-colors hover:text-red sm:block">
+        <div className="ml-auto flex items-center gap-4 text-ink">
+          <button aria-label="Search" className="hidden text-ink/80 transition-colors hover:text-red sm:block">
             <Search size={18} />
           </button>
-          <button aria-label="Notifications" className="hidden text-white/90 transition-colors hover:text-red sm:block">
+          <button aria-label="Notifications" className="hidden text-ink/80 transition-colors hover:text-red sm:block">
             <Bell size={18} />
           </button>
           <span aria-hidden className="hidden h-7 w-7 rounded bg-gradient-to-br from-red to-gold sm:block" />
@@ -136,11 +136,11 @@ export default function Navbar() {
 
       {/* Mobile drawer */}
       {mobileOpen && (
-        <div className="border-t border-line bg-black2 lg:hidden">
+        <div className="border-t border-line bg-paper lg:hidden">
           <ul className="mx-auto max-w-content px-4 py-2">
             {nav.map((item) => (
               <li key={item.label} className="border-b border-line/70 last:border-0">
-                <a href={item.href} onClick={(e) => go(e, item.href)} className="block py-3 text-sm font-medium text-white">
+                <a href={item.href} onClick={(e) => go(e, item.href)} className="block py-3 text-sm font-medium text-ink">
                   {item.label}
                 </a>
                 {item.children && (

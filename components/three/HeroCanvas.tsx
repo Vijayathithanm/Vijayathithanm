@@ -17,7 +17,7 @@ export default function HeroCanvas() {
   return (
     <Canvas
       dpr={[1, mobile ? 1.5 : 2]}
-      gl={{ antialias: true, alpha: true, powerPreference: 'high-performance', toneMapping: THREE.ACESFilmicToneMapping }}
+      gl={{ antialias: true, alpha: true, powerPreference: 'high-performance', toneMapping: THREE.NoToneMapping }}
       camera={{ position: [0, 0.3, 4.6], fov: 42 }}
     >
       <Lights />

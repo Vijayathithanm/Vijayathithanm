@@ -31,7 +31,7 @@ export default function Row({
   return (
     <section id={id} className="reveal group/row relative py-5" aria-label={heading}>
       <div className="mx-auto max-w-content px-4 md:px-8">
-        <h2 className="mb-3 font-display text-xl tracking-wide text-white md:text-2xl">
+        <h2 className="mb-3 font-display text-xl tracking-wide text-ink md:text-2xl">
           {heading}
         </h2>
       </div>
@@ -42,7 +42,7 @@ export default function Row({
           type="button"
           onClick={() => page(-1)}
           aria-label={`Scroll ${heading} left`}
-          className="absolute left-0 top-0 z-20 hidden h-full w-12 items-center justify-center bg-gradient-to-r from-black/70 to-transparent text-white opacity-0 transition-opacity group-hover/row:opacity-100 md:flex"
+          className="absolute left-0 top-0 z-20 hidden h-full w-12 items-center justify-center bg-gradient-to-r from-white via-white/80 to-transparent text-ink opacity-0 transition-opacity group-hover/row:opacity-100 md:flex"
         >
           <ChevronLeft size={30} />
         </button>
@@ -50,7 +50,7 @@ export default function Row({
           type="button"
           onClick={() => page(1)}
           aria-label={`Scroll ${heading} right`}
-          className="absolute right-0 top-0 z-20 hidden h-full w-12 items-center justify-center bg-gradient-to-l from-black/70 to-transparent text-white opacity-0 transition-opacity group-hover/row:opacity-100 md:flex"
+          className="absolute right-0 top-0 z-20 hidden h-full w-12 items-center justify-center bg-gradient-to-l from-white via-white/80 to-transparent text-ink opacity-0 transition-opacity group-hover/row:opacity-100 md:flex"
         >
           <ChevronRight size={30} />
         </button>

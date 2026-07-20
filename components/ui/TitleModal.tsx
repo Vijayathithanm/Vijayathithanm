@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { X, Play, Plus, ThumbsUp } from 'lucide-react';
 import type { Title } from '@/content/site';
-import { asset } from '@/lib/utils';
+import Img from '@/components/ui/Img';
 
 type Ctx = { open: (t: Title) => void };
 const TitleModalContext = createContext<Ctx>({ open: () => {} });
@@ -37,25 +37,24 @@ export function TitleModalProvider({ children }: { children: React.ReactNode }) 
       {children}
       {title && (
         <div
-          className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/80 p-4 py-10 backdrop-blur-sm"
+          className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/60 p-4 py-10 backdrop-blur-sm"
           role="dialog"
           aria-modal="true"
           aria-label={title.title}
           onClick={close}
         >
           <div
-            className="animate-fade-in relative w-full max-w-3xl overflow-hidden rounded-xl border border-line bg-black2 shadow-2xl"
+            className="animate-fade-in relative w-full max-w-3xl overflow-hidden rounded-xl border border-line bg-paper shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Backdrop */}
-            <div className="relative aspect-video w-full">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={asset(title.backdrop ?? title.poster)} alt={title.title} className="h-full w-full object-cover" />
-              <div className="absolute inset-0 scrim-bottom" />
+            {/* Media header */}
+            <div className="relative aspect-video w-full bg-panel">
+              <Img src={title.backdrop ?? title.poster} alt={title.title} className="h-full w-full object-cover" fallback="/placeholder-hero-1.svg" />
+              <div className="absolute inset-0 scrim-media" />
               <button
                 onClick={close}
                 aria-label="Close"
-                className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-black2/80 text-white transition-colors hover:bg-red"
+                className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-red"
               >
                 <X size={18} />
               </button>

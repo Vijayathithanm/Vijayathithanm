@@ -1,10 +1,11 @@
 import type { Config } from 'tailwindcss';
 
 /**
- * Cinematic, streaming-style dark palette:
- *   ink    → near-black canvas (#141414)
- *   red    → hot streaming-red accent (#E50914)
- *   gold   → warm secondary accent that ties back to the maestro (#C8A047)
+ * Bright, gallery-white palette with a bold streaming-red accent:
+ *   paper  → white canvas (#FFFFFF)
+ *   ink    → near-black text (#141414)
+ *   red    → streaming-red accent (#E50914)
+ *   gold   → warm secondary accent (#C8A047)
  */
 const config: Config = {
   content: [
@@ -15,13 +16,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        paper: '#FFFFFF',
         ink: '#141414',
-        black2: '#0b0b0b',
-        panel: '#1c1c1c',
-        line: '#2b2b2b',
-        white: '#ffffff',
-        muted: '#b3b3b3',
-        faint: '#7a7a7a',
+        panel: '#F5F5F5',
+        line: '#E6E6E6',
+        muted: '#5A5A5A',
+        faint: '#8A8A8A',
         red: '#E50914',
         'red-dark': '#b0060f',
         gold: '#C8A047',
