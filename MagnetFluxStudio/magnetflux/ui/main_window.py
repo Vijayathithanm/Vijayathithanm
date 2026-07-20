@@ -201,6 +201,13 @@ class MainWindow(QMainWindow):
         g = study.add_group("Parametric")
         g.add_button("Sweep", self._parametric_sweep)
 
+        optimize = ribbon.add_tab("Optimize")
+        g = optimize.add_group("Design")
+        g.add_button("Optimize", self._design_optimize)
+        g = optimize.add_group("Quick")
+        g.add_button("Spacing", self._optimize_spacing)
+        g.add_button("Poles", self._optimize_poles)
+
         results = ribbon.add_tab("Results")
         g = results.add_group("Plots")
         g.add_button("Slice", lambda: self._display("slice"))
@@ -226,6 +233,11 @@ class MainWindow(QMainWindow):
         from magnetflux.ui.parametric_dialog import ParametricDialog
 
         ParametricDialog(parent=self).exec()
+
+    def _design_optimize(self) -> None:
+        from magnetflux.ui.optimize_dialog import OptimizeDialog
+
+        OptimizeDialog(parent=self).exec()
 
     # -- workspace / dashboard switching ---------------------------------- #
 
