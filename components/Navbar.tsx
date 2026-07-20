@@ -1,176 +1,140 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { Menu, X, ChevronDown } from 'lucide-react';
-import { nav } from '@/content/site';
-import { scrollToHash, cn } from '@/lib/utils';
+import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Download, Menu, Moon, Sun, X } from 'lucide-react';
+import { profile } from '@/content/resume';
 
-/**
- * Sticky, transparent-over-white navigation with accessible dropdown menus
- * (hover + keyboard: Enter/Space to toggle, Escape to close) and a mobile
- * drawer. The logo and all links use in-page smooth-scroll anchors.
- */
+const links = [
+  { href: '#about', label: 'About' },
+  { href: '#experience', label: 'Experience' },
+  { href: '#projects', label: 'Projects' },
+  { href: '#simulations', label: 'Simulations' },
+  { href: '#vmc', label: 'VMC' },
+  { href: '#publications', label: 'Publications' },
+  { href: '#skills', label: 'Skills' },
+  { href: '#contact', label: 'Contact' },
+];
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const closeTimer = useRef<ReturnType<typeof setTimeout>>();
+  const [open, setOpen] = useState(false);
+  const [light, setLight] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    setLight(document.documentElement.classList.contains('light'));
+    const onScroll = () => setScrolled(window.scrollY > 40);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Close menus on Escape.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setOpenMenu(null);
-        setMobileOpen(false);
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
-
-  const go = (e: React.MouseEvent, href: string) => {
-    if (href.startsWith('#')) {
-      e.preventDefault();
-      scrollToHash(href);
-      setMobileOpen(false);
-      setOpenMenu(null);
-    }
-  };
-
-  const openNow = (label: string) => {
-    clearTimeout(closeTimer.current);
-    setOpenMenu(label);
-  };
-  const closeSoon = () => {
-    closeTimer.current = setTimeout(() => setOpenMenu(null), 140);
+  const toggleTheme = () => {
+    const next = !light;
+    setLight(next);
+    document.documentElement.classList.toggle('light', next);
+    try {
+      localStorage.theme = next ? 'light' : 'dark';
+    } catch {}
   };
 
   return (
-    <header
-      className={cn(
-        'interactive fixed inset-x-0 top-0 z-50 transition-colors duration-300',
-        scrolled ? 'bg-white/80 backdrop-blur-md border-b border-line' : 'bg-transparent',
-      )}
-    >
-      <nav
-        aria-label="Primary"
-        className="mx-auto flex max-w-content items-center justify-between px-5 py-4 md:px-8"
+    <>
+      <motion.header
+        initial={{ y: -80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+        className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
+          scrolled ? 'glass py-3' : 'bg-transparent py-5'
+        }`}
       >
-        {/* Logo */}
-        <a
-          href="#home"
-          onClick={(e) => go(e, '#home')}
-          className="font-display text-lg font-extrabold tracking-widest2 text-ink"
-        >
-          ILAIYA<span className="text-gold">RAAJA</span>
-        </a>
+        <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 md:px-8">
+          <a href="#top" className="font-display text-lg font-semibold tracking-tight">
+            <span className="font-mono text-accent">[</span> {profile.initials}{' '}
+            <span className="font-mono text-accent">]</span>
+          </a>
 
-        {/* Desktop links */}
-        <ul className="hidden items-center gap-6 lg:flex">
-          {nav.map((item) =>
-            item.children ? (
-              <li
-                key={item.label}
-                className="relative"
-                onMouseEnter={() => openNow(item.label)}
-                onMouseLeave={closeSoon}
+          <div className="hidden items-center gap-7 lg:flex">
+            {links.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                className="group relative text-sm text-muted transition-colors hover:text-ink"
               >
-                <button
-                  type="button"
-                  aria-haspopup="true"
-                  aria-expanded={openMenu === item.label}
-                  onClick={() => setOpenMenu((m) => (m === item.label ? null : item.label))}
-                  className="flex items-center gap-1 text-sm text-muted transition-colors hover:text-gold"
-                >
-                  {item.label}
-                  <ChevronDown size={14} className="mt-0.5" aria-hidden />
-                </button>
-                {openMenu === item.label && (
-                  <ul
-                    className="absolute left-0 top-full mt-2 min-w-48 rounded-lg border border-line bg-white p-2 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.25)]"
-                    role="menu"
-                  >
-                    {item.children.map((child) => (
-                      <li key={child.label} role="none">
-                        <a
-                          role="menuitem"
-                          href={child.href}
-                          onClick={(e) => go(e, child.href)}
-                          className="block rounded-md px-3 py-2 text-sm text-muted transition-colors hover:bg-line/60 hover:text-gold"
-                        >
-                          {child.label}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            ) : (
-              <li key={item.label}>
-                <a
-                  href={item.href}
-                  onClick={(e) => go(e, item.href)}
-                  className="text-sm text-muted transition-colors hover:text-gold"
-                >
-                  {item.label}
-                </a>
-              </li>
-            ),
-          )}
-        </ul>
-
-        {/* Mobile toggle */}
-        <button
-          type="button"
-          className="lg:hidden text-ink"
-          aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
-          aria-expanded={mobileOpen}
-          onClick={() => setMobileOpen((o) => !o)}
-        >
-          {mobileOpen ? <X /> : <Menu />}
-        </button>
-      </nav>
-
-      {/* Mobile drawer */}
-      {mobileOpen && (
-        <div className="interactive border-t border-line bg-white lg:hidden">
-          <ul className="mx-auto max-w-content px-5 py-3">
-            {nav.map((item) => (
-              <li key={item.label} className="border-b border-line/70 last:border-0">
-                <a
-                  href={item.href}
-                  onClick={(e) => go(e, item.href)}
-                  className="block py-3 text-sm font-medium text-ink"
-                >
-                  {item.label}
-                </a>
-                {item.children && (
-                  <ul className="pb-3 pl-4">
-                    {item.children.map((child) => (
-                      <li key={child.label}>
-                        <a
-                          href={child.href}
-                          onClick={(e) => go(e, child.href)}
-                          className="block py-1.5 text-sm text-muted"
-                        >
-                          {child.label}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
+                {l.label}
+                <span className="absolute -bottom-1 left-0 h-px w-0 bg-accent transition-all duration-300 group-hover:w-full" />
+              </a>
             ))}
-          </ul>
-        </div>
-      )}
-    </header>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              className="rounded-full border border-line p-2.5 text-muted transition-colors hover:border-accent/60 hover:text-accent"
+            >
+              {light ? <Moon size={15} /> : <Sun size={15} />}
+            </button>
+            <a
+              href={profile.resumeFile}
+              download
+              className="hidden items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-bg transition-shadow hover:shadow-[0_0_28px_rgb(var(--accent)/0.4)] sm:flex"
+            >
+              <Download size={14} /> Resume
+            </a>
+            <button
+              onClick={() => setOpen(true)}
+              aria-label="Open menu"
+              className="rounded-full border border-line p-2.5 text-muted lg:hidden"
+            >
+              <Menu size={16} />
+            </button>
+          </div>
+        </nav>
+      </motion.header>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] flex flex-col bg-bg/95 backdrop-blur-xl lg:hidden"
+          >
+            <div className="flex justify-end p-5">
+              <button
+                onClick={() => setOpen(false)}
+                aria-label="Close menu"
+                className="rounded-full border border-line p-2.5 text-muted"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div className="flex flex-1 flex-col items-center justify-center gap-6">
+              {links.map((l, i) => (
+                <motion.a
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setOpen(false)}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.05 * i }}
+                  className="font-display text-2xl font-medium text-ink"
+                >
+                  {l.label}
+                </motion.a>
+              ))}
+              <a
+                href={profile.resumeFile}
+                download
+                className="mt-4 flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-medium text-bg"
+              >
+                <Download size={14} /> Download Resume
+              </a>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

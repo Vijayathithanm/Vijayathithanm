@@ -1,29 +1,34 @@
 import type { Metadata } from 'next';
-import { Playfair_Display, Inter } from 'next/font/google';
+import { Space_Grotesk, Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
-import { seo } from '@/content/site';
+import { profile, seo } from '@/content/resume';
+import AppProviders from '@/components/providers/AppProviders';
 
-/* Bold display serif for headings, clean sans for body. */
-const display = Playfair_Display({
+const display = Space_Grotesk({
   subsets: ['latin'],
-  weight: ['600', '700', '800', '900'],
   variable: '--font-display',
   display: 'swap',
 });
 const sans = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
+const mono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(seo.siteUrl),
   title: seo.title,
   description: seo.description,
   keywords: seo.keywords,
-  authors: [{ name: 'Ilaiyaraaja' }],
+  authors: [{ name: profile.name }],
+  creator: profile.name,
   openGraph: {
     type: 'website',
     url: seo.siteUrl,
     title: seo.title,
     description: seo.description,
-    siteName: 'Ilaiyaraaja',
+    siteName: profile.name,
   },
   twitter: {
     card: 'summary_large_image',
@@ -36,27 +41,43 @@ export const metadata: Metadata = {
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Person',
-  name: 'Ilaiyaraaja',
-  alternateName: 'Isaignani',
-  jobTitle: 'Composer, Songwriter and Conductor',
+  name: profile.name,
+  jobTitle: profile.title,
+  email: `mailto:${profile.email}`,
+  telephone: profile.phone,
   url: seo.siteUrl,
-  sameAs: ['https://www.youtube.com/@ilaiyaraaja'],
+  sameAs: [profile.linkedin],
+  worksFor: { '@type': 'Organization', name: profile.company },
+  alumniOf: [
+    { '@type': 'CollegeOrUniversity', name: 'Indian Institute of Technology Madras' },
+    { '@type': 'CollegeOrUniversity', name: 'Thiagarajar College of Engineering' },
+    { '@type': 'CollegeOrUniversity', name: 'Anna University' },
+  ],
+  knowsAbout: seo.keywords,
+  address: { '@type': 'PostalAddress', addressLocality: 'Bengaluru', addressCountry: 'IN' },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${sans.variable}`}>
+    <html
+      lang="en"
+      className={`${display.variable} ${sans.variable} ${mono.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        {/* If JS is disabled, don't leave reveal-on-scroll content hidden. */}
-        <noscript>
-          <style>{`.reveal{opacity:1!important;transform:none!important}`}</style>
-        </noscript>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.theme==='light'){document.documentElement.classList.add('light')}}catch(e){}`,
+          }}
+        />
       </head>
-      <body>{children}</body>
+      <body className="font-sans">
+        <AppProviders>{children}</AppProviders>
+      </body>
     </html>
   );
 }

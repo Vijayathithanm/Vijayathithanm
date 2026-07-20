@@ -1,12 +1,7 @@
 import type { Config } from 'tailwindcss';
 
-/**
- * Minimal, gallery-like palette:
- *   paper   → pure white background (#FFFFFF)
- *   ink     → dark charcoal text (#1A1A1A)
- *   gold    → the single accent, used sparingly (#C8A047)
- */
 const config: Config = {
+  darkMode: 'class',
   content: [
     './app/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
@@ -15,36 +10,45 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        paper: '#FFFFFF',
-        ink: '#1A1A1A',
-        muted: '#5A5A5A',
-        faint: '#8A8A8A',
-        line: '#EAEAEA',
-        gold: '#C8A047',
-        'gold-soft': '#E3CFA0',
+        bg: 'rgb(var(--bg) / <alpha-value>)',
+        surface: 'rgb(var(--surface) / <alpha-value>)',
+        card: 'rgb(var(--card) / <alpha-value>)',
+        line: 'rgb(var(--line) / <alpha-value>)',
+        ink: 'rgb(var(--ink) / <alpha-value>)',
+        muted: 'rgb(var(--muted) / <alpha-value>)',
+        faint: 'rgb(var(--faint) / <alpha-value>)',
+        accent: 'rgb(var(--accent) / <alpha-value>)',
+        accent2: 'rgb(var(--accent2) / <alpha-value>)',
+        plasma: 'rgb(var(--plasma) / <alpha-value>)',
       },
       fontFamily: {
-        display: ['var(--font-display)', 'Georgia', 'serif'],
+        display: ['var(--font-display)', 'system-ui', 'sans-serif'],
         sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
-      },
-      letterSpacing: {
-        widest2: '0.35em',
-      },
-      maxWidth: {
-        content: '72rem',
+        mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
       },
       animation: {
-        'fade-in': 'fadeIn 0.8s ease forwards',
-        float: 'float 7s ease-in-out infinite',
+        'spin-slow': 'spin 24s linear infinite',
+        'pulse-soft': 'pulseSoft 4s ease-in-out infinite',
+        'float': 'float 7s ease-in-out infinite',
+        'gradient-x': 'gradientX 8s ease infinite',
+        'scan': 'scan 6s linear infinite',
       },
       keyframes: {
-        fadeIn: {
-          '0%': { opacity: '0', transform: 'translateY(16px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
+        pulseSoft: {
+          '0%, 100%': { opacity: '0.5' },
+          '50%': { opacity: '1' },
         },
         float: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-10px)' },
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-14px)' },
+        },
+        gradientX: {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+        },
+        scan: {
+          '0%': { transform: 'translateY(-100%)' },
+          '100%': { transform: 'translateY(100%)' },
         },
       },
     },

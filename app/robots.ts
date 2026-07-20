@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { seo } from '@/content/site';
+import { seo } from '@/content/resume';
 
 export const dynamic = 'force-static';
 
