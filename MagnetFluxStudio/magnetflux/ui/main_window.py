@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (
     QMessageBox,
 )
 
-from magnetflux.cad.importer import SUPPORTED_EXTENSIONS, import_cad
+from magnetflux.cad.importer import SUPPORTED_EXTENSIONS, import_cad_named
 from magnetflux.config import PROJECT_FILE_EXTENSION, AppConfig
 from magnetflux.core.jobs import Job
 from magnetflux.core.project import Project
@@ -338,20 +338,27 @@ class MainWindow(QMainWindow):
 
         def work(progress):
             progress.report(0.1, f"Reading {path.name}")
-            meshes = import_cad(path, source_unit=LengthUnit.MILLIMETER)
+            named = import_cad_named(path, source_unit=LengthUnit.MILLIMETER)
             progress.report(0.9, "Building bodies")
-            return meshes
+            return named
 
-        def done(meshes) -> None:
+        def done(named) -> None:
             stem = path.stem
-            for i, mesh in enumerate(meshes):
-                name = stem if len(meshes) == 1 else f"{stem} [{i + 1}]"
+            for i, (comp_name, mesh) in enumerate(named):
+                # Prefer the component/part name from the assembly; fall back to
+                # the file stem (single solid) or an indexed name.
+                if comp_name:
+                    name = comp_name
+                elif len(named) == 1:
+                    name = stem
+                else:
+                    name = f"{stem} [{i + 1}]"
                 self._project.model_tree.add_body(
                     mesh, name=name, source_file=str(path)
                 )
             self._refresh_views()
             self.statusBar().showMessage(
-                f"Imported {path.name}: {len(meshes)} solid(s)"
+                f"Imported {path.name}: {len(named)} component(s)"
             )
 
         def failed(exc: BaseException) -> None:

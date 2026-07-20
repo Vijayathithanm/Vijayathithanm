@@ -56,8 +56,29 @@ def _volume_mesh(gmsh, node_coords: dict[int, tuple], volume_tag: int) -> Triang
     return TriangleMesh(np.asarray(verts, dtype=float), np.asarray(faces, dtype=np.int64))
 
 
+def _clean_component_name(raw: str) -> str | None:
+    """Extract a usable component name from a Gmsh/STEP entity name.
+
+    STEP assembly names may be nested ("Assembly/Bracket") or empty; return the
+    last path component, or ``None`` if there is no meaningful name.
+    """
+    if not raw:
+        return None
+    name = raw.replace("\\", "/").split("/")[-1].strip()
+    return name or None
+
+
 def read_cad_gmsh(path: str | Path) -> list[TriangleMesh]:
-    """Read a STEP/IGES file with Gmsh, returning one mesh per solid.
+    """Read a STEP/IGES file with Gmsh, returning one mesh per solid."""
+    return [mesh for _name, mesh in read_cad_gmsh_named(path)]
+
+
+def read_cad_gmsh_named(path: str | Path) -> list[tuple[str | None, TriangleMesh]]:
+    """Read a STEP/IGES file, returning ``(component_name, mesh)`` per solid.
+
+    The component name comes from the STEP product/part name of each solid, so
+    an imported assembly lists its parts by name and materials can be assigned
+    per component in a single import.
 
     Raises:
         RuntimeError: If Gmsh cannot be loaded.
@@ -86,11 +107,12 @@ def read_cad_gmsh(path: str | Path) -> list[TriangleMesh]:
         coords = np.asarray(coords, dtype=float).reshape(-1, 3)
         node_coords = {int(t): tuple(coords[i]) for i, t in enumerate(node_tags)}
 
-        meshes: list[TriangleMesh] = []
+        meshes: list[tuple[str | None, TriangleMesh]] = []
         for _dim, vtag in gmsh.model.getEntities(3):
             mesh = _volume_mesh(gmsh, node_coords, vtag)
             if mesh is not None:
-                meshes.append(mesh)
+                name = _clean_component_name(gmsh.model.getEntityName(3, vtag))
+                meshes.append((name, mesh))
 
         # IGES/surface models may have no solids: fall back to all surfaces.
         if not meshes:
@@ -112,8 +134,8 @@ def read_cad_gmsh(path: str | Path) -> list[TriangleMesh]:
                             row.append(idx)
                         faces.append(row)
             if verts and faces:
-                meshes.append(TriangleMesh(np.asarray(verts, float),
-                                           np.asarray(faces, np.int64)))
+                meshes.append((None, TriangleMesh(np.asarray(verts, float),
+                                                  np.asarray(faces, np.int64))))
         return meshes
     finally:
         gmsh.finalize()
