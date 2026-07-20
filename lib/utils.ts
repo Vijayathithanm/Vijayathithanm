@@ -10,3 +10,16 @@ export function asset(path: string) {
   const base = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
   return `${base}${path}`;
 }
+
+/**
+ * Smoothly scroll to an in-page anchor (e.g. "#facets"). Honours
+ * `prefers-reduced-motion` by jumping instantly. Returns true if handled.
+ */
+export function scrollToHash(hash: string): boolean {
+  if (typeof document === 'undefined' || !hash.startsWith('#') || hash === '#') return false;
+  const el = document.querySelector(hash);
+  if (!el) return false;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  return true;
+}

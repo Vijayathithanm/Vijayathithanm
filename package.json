@@ -1,8 +1,8 @@
 {
-  "name": "vijayathithan-portfolio",
+  "name": "ilaiyaraaja-3d-website",
   "version": "1.0.0",
   "private": true,
-  "description": "Engineering portfolio of Vijayathithan Mathiyazhagan — R&D Engineer, Simulation Scientist, Product Developer",
+  "description": "An interactive single-page 3D tribute website for the music maestro Ilaiyaraaja — React Three Fiber + drei + Tailwind CSS.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -10,9 +10,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@react-three/drei": "^9.114.3",
     "@react-three/fiber": "^8.17.10",
     "framer-motion": "^11.11.17",
-    "gsap": "^3.12.5",
     "lenis": "^1.1.17",
     "lucide-react": "^0.454.0",
     "next": "^14.2.18",

@@ -1,34 +1,29 @@
 import type { Metadata } from 'next';
-import { Space_Grotesk, Inter, JetBrains_Mono } from 'next/font/google';
+import { Playfair_Display, Inter } from 'next/font/google';
 import './globals.css';
-import { profile, seo } from '@/content/resume';
-import AppProviders from '@/components/providers/AppProviders';
+import { seo } from '@/content/site';
 
-const display = Space_Grotesk({
+/* Bold display serif for headings, clean sans for body. */
+const display = Playfair_Display({
   subsets: ['latin'],
+  weight: ['600', '700', '800', '900'],
   variable: '--font-display',
   display: 'swap',
 });
 const sans = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
-const mono = JetBrains_Mono({
-  subsets: ['latin'],
-  variable: '--font-mono',
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(seo.siteUrl),
   title: seo.title,
   description: seo.description,
   keywords: seo.keywords,
-  authors: [{ name: profile.name }],
-  creator: profile.name,
+  authors: [{ name: 'Ilaiyaraaja' }],
   openGraph: {
     type: 'website',
     url: seo.siteUrl,
     title: seo.title,
     description: seo.description,
-    siteName: profile.name,
+    siteName: 'Ilaiyaraaja',
   },
   twitter: {
     card: 'summary_large_image',
@@ -41,43 +36,27 @@ export const metadata: Metadata = {
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Person',
-  name: profile.name,
-  jobTitle: profile.title,
-  email: `mailto:${profile.email}`,
-  telephone: profile.phone,
+  name: 'Ilaiyaraaja',
+  alternateName: 'Isaignani',
+  jobTitle: 'Composer, Songwriter and Conductor',
   url: seo.siteUrl,
-  sameAs: [profile.linkedin],
-  worksFor: { '@type': 'Organization', name: profile.company },
-  alumniOf: [
-    { '@type': 'CollegeOrUniversity', name: 'Indian Institute of Technology Madras' },
-    { '@type': 'CollegeOrUniversity', name: 'Thiagarajar College of Engineering' },
-    { '@type': 'CollegeOrUniversity', name: 'Anna University' },
-  ],
-  knowsAbout: seo.keywords,
-  address: { '@type': 'PostalAddress', addressLocality: 'Bengaluru', addressCountry: 'IN' },
+  sameAs: ['https://www.youtube.com/@ilaiyaraaja'],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="en"
-      className={`${display.variable} ${sans.variable} ${mono.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang="en" className={`${display.variable} ${sans.variable}`}>
       <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `try{if(localStorage.theme==='light'){document.documentElement.classList.add('light')}}catch(e){}`,
-          }}
-        />
+        {/* If JS is disabled, don't leave reveal-on-scroll content hidden. */}
+        <noscript>
+          <style>{`.reveal{opacity:1!important;transform:none!important}`}</style>
+        </noscript>
       </head>
-      <body className="font-sans">
-        <AppProviders>{children}</AppProviders>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
