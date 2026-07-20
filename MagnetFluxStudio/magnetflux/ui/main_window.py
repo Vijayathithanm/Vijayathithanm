@@ -198,6 +198,8 @@ class MainWindow(QMainWindow):
         g = study.add_group("Magnetron")
         g.add_button("Race Track", self._predict_race_track)
         g.add_button("Report", self._generate_report)
+        g = study.add_group("Parametric")
+        g.add_button("Sweep", self._parametric_sweep)
 
         results = ribbon.add_tab("Results")
         g = results.add_group("Plots")
@@ -219,6 +221,11 @@ class MainWindow(QMainWindow):
 
     def _new_material(self) -> None:
         self._property_panel._create_material()  # noqa: SLF001
+
+    def _parametric_sweep(self) -> None:
+        from magnetflux.ui.parametric_dialog import ParametricDialog
+
+        ParametricDialog(parent=self).exec()
 
     # -- workspace / dashboard switching ---------------------------------- #
 
