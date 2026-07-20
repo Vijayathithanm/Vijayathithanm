@@ -197,7 +197,8 @@ class MainWindow(QMainWindow):
         g.add_button("Solve Field", self._solve_field)
         g = study.add_group("Magnetron")
         g.add_button("Race Track", self._predict_race_track)
-        g.add_button("Report", self._generate_report)
+        g.add_button("Race PDF", self._generate_report)
+        g.add_button("Full Report", self._full_report)
         g = study.add_group("Parametric")
         g.add_button("Sweep", self._parametric_sweep)
 
@@ -238,6 +239,78 @@ class MainWindow(QMainWindow):
         from magnetflux.ui.optimize_dialog import OptimizeDialog
 
         OptimizeDialog(parent=self).exec()
+
+    def _full_report(self) -> None:
+        """Assemble and render the comprehensive engineering PDF report."""
+        from pathlib import Path as _Path
+
+        from magnetflux.report.assemble import build_full_report
+        from magnetflux.report.pdf import render_pdf
+        from magnetflux.results.statistics import field_statistics
+        from magnetflux.visualization.quantities import FieldQuantity, scalar_values
+
+        # Components + materials.
+        bodies = []
+        for body in self._project.model_tree:
+            a = self._assignments.get(body.id)
+            mat_id = a.material_id if a else "-"
+            br = 0.0
+            direction = "-"
+            if a and self._material_db.has(a.material_id):
+                br = a.effective_remanence(self._material_db.get(a.material_id))
+                if a.magnetization:
+                    direction = str(tuple(round(v, 2) for v in a.magnetization.direction))
+            bodies.append({"name": body.name, "material": mat_id,
+                           "br": br, "direction": direction})
+
+        # Field statistics per quantity.
+        quantity_stats = {}
+        if self._last_field is not None:
+            for q in (FieldQuantity.BMAG, FieldQuantity.BZ, FieldQuantity.HMAG,
+                      FieldQuantity.ENERGY):
+                stats = field_statistics(scalar_values(self._last_field.result, q))
+                quantity_stats[f"{q.value} [{q.unit}]"] = stats.as_dict()
+
+        # Race track (best-effort) + heatmap image.
+        racetrack_metrics: dict[str, str] = {}
+        heatmap_path = None
+        track = self._compute_race_track()
+        if track is not None:
+            from magnetflux.racetrack.erosion import eroded_area_fraction, uniformity
+            from magnetflux.racetrack.heatmap import save_heatmap_png
+
+            racetrack_metrics = {
+                "Peak |B_t|": f"{track.b_tangential_mag.max() * 1e3:.1f} mT",
+                "Uniformity": f"{uniformity(track):.2f}",
+                "Eroded area fraction": f"{eroded_area_fraction(track):.2f}",
+            }
+
+        path, _ = QFileDialog.getSaveFileName(self, "Full Report", "", "PDF (*.pdf)")
+        if not path:
+            return
+        if track is not None:
+            heatmap_path = str(_Path(path).with_suffix(".png"))
+            save_heatmap_png(track, heatmap_path, "Predicted race track")
+
+        model = build_full_report(
+            project_name=self._project.name or "Untitled",
+            bodies=bodies,
+            solver_info={"backend": self._solver.backend.name,
+                         "components": len(bodies)},
+            quantity_stats=quantity_stats,
+            racetrack_metrics=racetrack_metrics,
+            conclusions=[
+                "Magnetostatic analysis completed with MagnetFlux Studio.",
+                f"{len(bodies)} component(s) analysed.",
+            ],
+            heatmap_path=heatmap_path,
+        )
+        try:
+            render_pdf(model, path)
+        except Exception as exc:  # noqa: BLE001 - surfaced to user
+            QMessageBox.critical(self, "Report failed", str(exc))
+            return
+        self.statusBar().showMessage(f"Saved {_Path(path).name}")
 
     # -- workspace / dashboard switching ---------------------------------- #
 
