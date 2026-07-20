@@ -192,6 +192,10 @@ class MainWindow(QMainWindow):
         g = mat.add_group("Materials")
         g.add_button("New Material", self._new_material)
 
+        mesh = ribbon.add_tab("Mesh")
+        g = mesh.add_group("Mesh")
+        g.add_button("Statistics", self._mesh_statistics)
+
         study = ribbon.add_tab("Study")
         g = study.add_group("Solve")
         g.add_button("Solve Field", self._solve_field)
@@ -229,6 +233,25 @@ class MainWindow(QMainWindow):
 
     def _new_material(self) -> None:
         self._property_panel._create_material()  # noqa: SLF001
+
+    def _mesh_statistics(self) -> None:
+        from magnetflux.mesh import generate_mesh, mesh_statistics
+        from magnetflux.solver.air_domain import generate_air_domain
+
+        bbox = self._project.model_tree.bounding_box()
+        if bbox is None:
+            QMessageBox.information(self, "Mesh", "Import a model first.")
+            return
+        domain = generate_air_domain(bbox, self._config.default_air_padding)
+        self.statusBar().showMessage("Meshing air domain...")
+        mesh = generate_mesh(domain, mesh_size=domain.diagonal / 20.0)
+        stats = mesh_statistics(mesh.points, mesh.tets)
+        lines = "\n".join(
+            f"{k}: {v:.4g}" if isinstance(v, float) else f"{k}: {v}"
+            for k, v in stats.as_dict().items()
+        )
+        QMessageBox.information(self, "Mesh Statistics", lines)
+        self.statusBar().showMessage("Mesh statistics computed")
 
     def _parametric_sweep(self) -> None:
         from magnetflux.ui.parametric_dialog import ParametricDialog
