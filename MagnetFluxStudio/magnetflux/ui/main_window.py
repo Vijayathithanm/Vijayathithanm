@@ -97,6 +97,14 @@ class MainWindow(QMainWindow):
             "Properties", self._property_panel, Qt.RightDockWidgetArea
         )
 
+        from magnetflux.ui.results_panel import ResultsPanel
+
+        self._results_panel = ResultsPanel(self)
+        self._results_panel.evaluate_requested.connect(self._evaluate_expression)
+        self._results_dock = self._add_dock(
+            "Results", self._results_panel, Qt.RightDockWidgetArea
+        )
+
         self._log_panel = LogPanel(self)
         self._log_dock = self._add_dock("Log", self._log_panel, Qt.BottomDockWidgetArea)
 
@@ -197,6 +205,8 @@ class MainWindow(QMainWindow):
         g.add_button("Contours", lambda: self._display("contours"))
         g.add_button("Glyphs", lambda: self._display("glyphs"))
         g.add_button("Streamlines", lambda: self._display("streamlines"))
+        g = results.add_group("Analysis")
+        g.add_button("Statistics", self._show_statistics)
         g = results.add_group("Export")
         g.add_button("PNG", self._export_png)
         g.add_button("CSV", self._export_csv)
@@ -213,7 +223,52 @@ class MainWindow(QMainWindow):
     # -- workspace / dashboard switching ---------------------------------- #
 
     def _workspace_docks(self):
-        return (self._builder_dock, self._tree_dock, self._prop_dock, self._log_dock)
+        return (self._builder_dock, self._tree_dock, self._prop_dock,
+                self._results_dock, self._log_dock)
+
+    # -- results post-processing ------------------------------------------ #
+
+    def _field_variables(self) -> dict:
+        """Named arrays for custom expressions over the last solved field."""
+        res = self._last_field.result
+        import numpy as np
+
+        pts = res.points
+        h = res.h
+        return {
+            "Bx": res.bx, "By": res.by, "Bz": res.bz, "Bmag": res.b_magnitude,
+            "Hx": h[:, 0], "Hy": h[:, 1], "Hz": h[:, 2],
+            "Hmag": np.linalg.norm(h, axis=1),
+            "x": pts[:, 0], "y": pts[:, 1], "z": pts[:, 2],
+        }
+
+    def _show_statistics(self) -> None:
+        from magnetflux.results.statistics import field_statistics
+        from magnetflux.visualization.quantities import scalar_values
+
+        if self._last_field is None:
+            QMessageBox.information(self, "Results", "Solve the field first.")
+            return
+        q = self._current_quantity()
+        stats = field_statistics(scalar_values(self._last_field.result, q))
+        self._results_panel.set_title(f"Statistics — {q.value} [{q.unit}]")
+        self._results_panel.set_statistics(stats.as_dict())
+        self._results_dock.raise_()
+
+    def _evaluate_expression(self, expression: str) -> None:
+        from magnetflux.results.expressions import evaluate_expression
+        from magnetflux.results.statistics import field_statistics
+
+        if self._last_field is None:
+            QMessageBox.information(self, "Results", "Solve the field first.")
+            return
+        try:
+            values = evaluate_expression(expression, self._field_variables())
+        except Exception as exc:  # noqa: BLE001 - surfaced to user
+            QMessageBox.warning(self, "Expression error", str(exc))
+            return
+        self._results_panel.set_title(f"Statistics — {expression}")
+        self._results_panel.set_statistics(field_statistics(values).as_dict())
 
     def _show_dashboard(self) -> None:
         self._stack.setCurrentWidget(self._dashboard)
