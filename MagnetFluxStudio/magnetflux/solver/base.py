@@ -37,6 +37,7 @@ class SolverProblem:
 
     points: np.ndarray
     magnet_sources: list[dict] = field(default_factory=list)
+    coils: list = field(default_factory=list)  # CoilSource objects (current sources)
     air_padding: float = 2.0
     mesh_size: float = 2.0e-3
 

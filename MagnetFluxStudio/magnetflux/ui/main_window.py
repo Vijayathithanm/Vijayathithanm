@@ -53,6 +53,10 @@ class MainWindow(QMainWindow):
         self._solver = SolverService()
         self._last_field: StructuredField | None = None
 
+        from magnetflux.physics.boundary import PhysicsSettings
+
+        self._physics = PhysicsSettings()
+
         self.setWindowTitle("MagnetFlux Studio")
         self.resize(1360, 860)
 
@@ -192,6 +196,10 @@ class MainWindow(QMainWindow):
         g = mat.add_group("Materials")
         g.add_button("New Material", self._new_material)
 
+        physics = ribbon.add_tab("Physics")
+        g = physics.add_group("Magnetostatics")
+        g.add_button("Boundary Conditions", self._edit_physics)
+
         mesh = ribbon.add_tab("Mesh")
         g = mesh.add_group("Mesh")
         g.add_button("Statistics", self._mesh_statistics)
@@ -233,6 +241,16 @@ class MainWindow(QMainWindow):
 
     def _new_material(self) -> None:
         self._property_panel._create_material()  # noqa: SLF001
+
+    def _edit_physics(self) -> None:
+        from magnetflux.ui.physics_dialog import PhysicsDialog
+
+        dlg = PhysicsDialog(self._physics, self)
+        if dlg.exec():
+            self._physics = dlg.settings()
+            self.statusBar().showMessage(
+                f"Boundary condition: {self._physics.outer_boundary.value}"
+            )
 
     def _mesh_statistics(self) -> None:
         from magnetflux.mesh import generate_mesh, mesh_statistics
