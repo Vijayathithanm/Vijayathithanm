@@ -188,6 +188,9 @@ class MainWindow(QMainWindow):
         geo = ribbon.add_tab("Geometry")
         g = geo.add_group("Import")
         g.add_button("Import CAD", self._import_cad_dialog)
+        g = geo.add_group("Modify")
+        g.add_button("Polar Array", self._polar_array)
+        g.add_button("Mirror", self._mirror_body)
         g = geo.add_group("Camera")
         g.add_button("Fit", self._viewport.fit_view)
         g.add_button("Isometric", lambda: self._viewport.set_view("iso"))
@@ -465,7 +468,47 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage("New project")
 
     def _on_body_selected(self, body_id: int) -> None:
+        self._selected_body_id = body_id
         self._property_panel.show_body(body_id)
+
+    def _polar_array(self) -> None:
+        from PySide6.QtWidgets import QInputDialog
+
+        from magnetflux.geometry.pattern import polar_array
+
+        body = self._selected_body()
+        if body is None:
+            return
+        count, ok = QInputDialog.getInt(self, "Polar Array", "Number of copies:",
+                                        6, 2, 64)
+        if not ok:
+            return
+        copies = polar_array(body.mesh, axis=[0, 0, 1], center=[0, 0, 0], count=count)
+        for i, mesh in enumerate(copies[1:], start=2):
+            self._project.model_tree.add_body(mesh, name=f"{body.name} ({i})")
+        self._refresh_views()
+        self.statusBar().showMessage(f"Polar array: {count} copies")
+
+    def _mirror_body(self) -> None:
+        from magnetflux.geometry.transform import mirror_mesh
+
+        body = self._selected_body()
+        if body is None:
+            return
+        mirrored = mirror_mesh(body.mesh, plane_normal=[1, 0, 0])
+        self._project.model_tree.add_body(mirrored, name=f"{body.name} (mirror)")
+        self._refresh_views()
+        self.statusBar().showMessage("Mirrored body added")
+
+    def _selected_body(self):
+        bid = getattr(self, "_selected_body_id", None)
+        if bid is None:
+            QMessageBox.information(self, "Geometry", "Select a body first.")
+            return None
+        try:
+            return self._project.model_tree.get(bid)
+        except KeyError:
+            return None
 
     def _on_assignment_changed(self, body_id: int, assignment) -> None:
         # Keep the model tree's material_id in sync for colouring/queries.
