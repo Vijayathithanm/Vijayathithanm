@@ -136,6 +136,16 @@ class TriangleMesh:
         ac = tris[:, 2] - tris[:, 0]
         return float(0.5 * np.linalg.norm(np.cross(ab, ac), axis=1).sum())
 
+    def volume(self) -> float:
+        """Enclosed volume [m^3] via the divergence theorem (closed meshes).
+
+        Sums the signed tetrahedron volumes of each face with the origin;
+        returns the magnitude, so it is orientation-independent.
+        """
+        tris = self.vertices[self.faces]
+        v0, v1, v2 = tris[:, 0], tris[:, 1], tris[:, 2]
+        return float(abs(np.einsum("ij,ij->i", v0, np.cross(v1, v2)).sum()) / 6.0)
+
     def scaled(self, factor: float) -> "TriangleMesh":
         """Return a copy with vertices scaled by ``factor`` (unit conversion)."""
         return TriangleMesh(self.vertices * factor, self.faces.copy())
