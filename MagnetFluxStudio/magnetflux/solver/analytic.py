@@ -181,5 +181,9 @@ class AnalyticBackend(SolverBackend):
             if progress is not None:
                 progress.report((i + 1) / n_src, f"magnet {i + 1}/{n_src}")
         b = MU_0 * h
+        # Add current-carrying coil fields (Biot-Savart), if any.
+        for coil in problem.coils:
+            b = b + coil.field(pts)
         return FieldResult(pts, b, metadata={"backend": self.name,
-                                             "n_sources": len(problem.magnet_sources)})
+                                             "n_sources": len(problem.magnet_sources),
+                                             "n_coils": len(problem.coils)})
