@@ -8,11 +8,19 @@ connects to the viewport, keeping GUI wiring out of the domain model.
 from __future__ import annotations
 
 from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QColor, QIcon, QPixmap
 from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem
 
 from magnetflux.core.model_tree import ModelTree
 
 _ID_ROLE = Qt.UserRole + 1
+
+
+def _swatch(color: tuple[float, float, float]) -> QIcon:
+    """A small solid-colour icon for a body's display colour."""
+    pix = QPixmap(14, 14)
+    pix.fill(QColor.fromRgbF(*color))
+    return QIcon(pix)
 
 
 class ModelTreeWidget(QTreeWidget):
@@ -38,9 +46,23 @@ class ModelTreeWidget(QTreeWidget):
         for body in tree:
             item = QTreeWidgetItem([body.name])
             item.setData(0, _ID_ROLE, body.id)
+            item.setIcon(0, _swatch(body.color))  # colour swatch per component
             item.setFlags(item.flags() | Qt.ItemIsUserCheckable | Qt.ItemIsEditable)
             item.setCheckState(0, Qt.Checked if body.visible else Qt.Unchecked)
             self.addTopLevelItem(item)
+        self.blockSignals(False)
+
+    def set_all_visible(self, visible: bool) -> None:
+        """Show or hide every body (Show All / Hide All)."""
+        if self._tree is None:
+            return
+        self.blockSignals(True)
+        for i in range(self.topLevelItemCount()):
+            item = self.topLevelItem(i)
+            item.setCheckState(0, Qt.Checked if visible else Qt.Unchecked)
+            body_id = item.data(0, _ID_ROLE)
+            self._tree.set_visible(body_id, visible)
+            self.visibility_changed.emit(body_id, visible)
         self.blockSignals(False)
 
     def _on_item_changed(self, item: QTreeWidgetItem, _column: int) -> None:
