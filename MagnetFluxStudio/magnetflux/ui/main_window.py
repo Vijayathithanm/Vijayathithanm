@@ -80,6 +80,8 @@ class MainWindow(QMainWindow):
         self._viewport = Viewport(self)
         self._stack.addWidget(self._viewport)
         self._field_viz = FieldVisualizer(self._viewport)
+        self._viewport.body_picked.connect(self._on_body_selected)
+        self._viewport.point_picked.connect(self._on_point_picked)
 
         # Docks.
         self._model_builder = ModelBuilder(self)
@@ -188,6 +190,14 @@ class MainWindow(QMainWindow):
         geo = ribbon.add_tab("Geometry")
         g = geo.add_group("Import")
         g.add_button("Import CAD", self._import_cad_dialog)
+        g = geo.add_group("Selection")
+        g.add_button("Domain", lambda: self._set_selection_mode("domain"))
+        g.add_button("Boundary", lambda: self._set_selection_mode("boundary"))
+        g.add_button("Edge", lambda: self._set_selection_mode("edge"))
+        g.add_button("Point", lambda: self._set_selection_mode("point"))
+        g = geo.add_group("Visibility")
+        g.add_button("Show All", lambda: self._set_all_visible(True))
+        g.add_button("Hide All", lambda: self._set_all_visible(False))
         g = geo.add_group("Modify")
         g.add_button("Polar Array", self._polar_array)
         g.add_button("Mirror", self._mirror_body)
@@ -470,6 +480,21 @@ class MainWindow(QMainWindow):
     def _on_body_selected(self, body_id: int) -> None:
         self._selected_body_id = body_id
         self._property_panel.show_body(body_id)
+        self._viewport.highlight_body(body_id)
+
+    def _on_point_picked(self, point) -> None:
+        x, y, z = point
+        self.statusBar().showMessage(
+            f"Picked point: ({x * 1000:.2f}, {y * 1000:.2f}, {z * 1000:.2f}) mm"
+        )
+
+    def _set_selection_mode(self, mode: str) -> None:
+        self._viewport.set_selection_mode(mode)
+        self.statusBar().showMessage(f"Selection mode: {mode}")
+
+    def _set_all_visible(self, visible: bool) -> None:
+        self._tree_widget.set_all_visible(visible)
+        self.statusBar().showMessage("Show all" if visible else "Hide all")
 
     def _polar_array(self) -> None:
         from PySide6.QtWidgets import QInputDialog

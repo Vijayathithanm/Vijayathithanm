@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import numpy as np
 
+from PySide6.QtCore import Signal
 from pyvistaqt import QtInteractor  # noqa: E402  (optional GUI dependency)
 
 from magnetflux.core.model_tree import Body, ModelTree
@@ -30,11 +31,16 @@ def _to_polydata(body: Body):
 class Viewport(QtInteractor):
     """Interactive 3D view of the model tree."""
 
+    body_picked = Signal(int)     # body id clicked in the scene (domain selection)
+    point_picked = Signal(object)  # (x, y, z) for boundary/edge/point modes
+
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.set_background("white")
         self.add_axes()
         self._actors: dict[int, object] = {}
+        self._selection_mode = "domain"
+        self._selected_id: int | None = None
 
     def render_tree(self, tree: ModelTree) -> None:
         """Replace the scene with the bodies in ``tree``."""
@@ -64,6 +70,48 @@ class Viewport(QtInteractor):
         if actor is not None:
             actor.SetVisibility(visible)
             self.render()
+
+    # -- selection -------------------------------------------------------- #
+
+    def set_selection_mode(self, mode: str) -> None:
+        """Set the selection mode: 'domain', 'boundary', 'edge' or 'point'."""
+        self._selection_mode = mode
+        self._enable_picking()
+
+    def _enable_picking(self) -> None:
+        """Enable click picking appropriate to the current selection mode."""
+        try:
+            if self._selection_mode == "domain":
+                self.enable_mesh_picking(
+                    self._on_domain_pick, use_actor=True, show=False,
+                    show_message=False, left_clicking=True,
+                )
+            else:
+                self.enable_point_picking(
+                    self._on_point_pick, show_message=False, left_clicking=True,
+                )
+        except Exception:  # pragma: no cover - picking unavailable in some backends
+            pass
+
+    def _on_domain_pick(self, actor) -> None:
+        for body_id, a in self._actors.items():
+            if a is actor:
+                self.highlight_body(body_id)
+                self.body_picked.emit(body_id)
+                return
+
+    def _on_point_pick(self, point) -> None:
+        if point is not None:
+            self.point_picked.emit(tuple(float(c) for c in point))
+
+    def highlight_body(self, body_id: int) -> None:
+        """Outline the selected body and un-highlight the rest."""
+        self._selected_id = body_id
+        for bid, actor in self._actors.items():
+            prop = actor.GetProperty()
+            prop.SetEdgeVisibility(bid == body_id)
+            prop.SetLineWidth(3 if bid == body_id else 1)
+        self.render()
 
     def fit_view(self) -> None:
         """Frame all visible geometry (camera 'fit to screen')."""

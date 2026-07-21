@@ -14,6 +14,7 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from magnetflux.core.geometry import BoundingBox, TriangleMesh
+from magnetflux.core.palette import color_for_index
 
 
 @dataclass(slots=True)
@@ -58,13 +59,18 @@ class ModelTree:
         *,
         source_file: str | None = None,
     ) -> Body:
-        """Create and register a new body from ``mesh``."""
+        """Create and register a new body from ``mesh``.
+
+        Each body is given a distinct display colour (by insertion order) so
+        imported assembly components are visually differentiated.
+        """
         body_id = self._next_id
         self._next_id += 1
         body = Body(
             id=body_id,
             name=name or f"Body {body_id}",
             mesh=mesh,
+            color=color_for_index(len(self._bodies)),
             source_file=source_file,
         )
         self._bodies[body_id] = body
