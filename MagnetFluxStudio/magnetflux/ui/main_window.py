@@ -227,6 +227,13 @@ class MainWindow(QMainWindow):
         g = study.add_group("Parametric")
         g.add_button("Sweep", self._parametric_sweep)
 
+        assistant = ribbon.add_tab("Assistant")
+        g = assistant.add_group("Recommend")
+        g.add_button("Magnet", self._recommend_magnet)
+        g.add_button("Solver", self._recommend_solver)
+        g = assistant.add_group("Check")
+        g.add_button("Diagnose Setup", self._diagnose_setup)
+
         optimize = ribbon.add_tab("Optimize")
         g = optimize.add_group("Design")
         g.add_button("Optimize", self._design_optimize)
@@ -293,6 +300,50 @@ class MainWindow(QMainWindow):
         from magnetflux.ui.optimize_dialog import OptimizeDialog
 
         OptimizeDialog(parent=self).exec()
+
+    # -- design assistant ------------------------------------------------- #
+
+    def _recommend_magnet(self) -> None:
+        from PySide6.QtWidgets import QInputDialog
+
+        from magnetflux.assistant.recommend import recommend_magnet
+
+        temp, ok = QInputDialog.getDouble(self, "Recommend Magnet",
+                                          "Operating temperature (C):", 20.0, -50, 500)
+        if not ok:
+            return
+        rec = recommend_magnet(self._material_db, operating_temp=temp,
+                               prefer="performance")
+        alts = ", ".join(rec.alternatives) if rec.alternatives else "-"
+        QMessageBox.information(
+            self, "Recommended Magnet",
+            f"Best: {rec.choice}\n\n{rec.rationale}\n\nAlternatives: {alts}",
+        )
+
+    def _recommend_solver(self) -> None:
+        from magnetflux.assistant.recommend import recommend_solver
+        from magnetflux.materials.material import MaterialType
+
+        has_iron = any(
+            self._material_db.has(a.material_id)
+            and self._material_db.get(a.material_id).mtype is MaterialType.SOFT_MAGNETIC
+            for _, a in self._assignments.items()
+        )
+        rec = recommend_solver(has_iron, len(self._project.model_tree))
+        QMessageBox.information(self, "Recommended Solver",
+                                f"Backend: {rec.choice}\n\n{rec.rationale}")
+
+    def _diagnose_setup(self) -> None:
+        from magnetflux.assistant.recommend import diagnose_setup
+
+        issues = diagnose_setup(self._project.model_tree, self._material_db,
+                                self._assignments)
+        if not issues:
+            QMessageBox.information(self, "Diagnose Setup",
+                                    "No issues found - the model looks ready to solve.")
+        else:
+            QMessageBox.warning(self, "Diagnose Setup",
+                                "\n".join(f"- {i}" for i in issues))
 
     def _full_report(self) -> None:
         """Assemble and render the comprehensive engineering PDF report."""
