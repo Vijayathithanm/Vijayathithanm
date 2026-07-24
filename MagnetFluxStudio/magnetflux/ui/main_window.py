@@ -253,6 +253,10 @@ class MainWindow(QMainWindow):
         g.add_button("PNG", self._export_png)
         g.add_button("CSV", self._export_csv)
         g.add_button("VTK", self._export_vtk)
+        g = results.add_group("Export 3D")
+        g.add_button("OBJ", self._export_obj)
+        g.add_button("3D HTML", self._export_html)
+        g.add_button("MP4", self._export_mp4)
 
         self._ribbon_toolbar = self.addToolBar("Ribbon")
         self.addToolBarBreak()
@@ -668,6 +672,43 @@ class MainWindow(QMainWindow):
         if path:
             export_vtk(path, self._last_field.result, dims=self._last_field.dims)
             self.statusBar().showMessage(f"Saved {Path(path).name}")
+
+    def _export_obj(self) -> None:
+        from magnetflux.visualization.scene_export import export_obj
+
+        if self._project.model_tree.is_empty():
+            QMessageBox.information(self, "Export OBJ", "Import a model first.")
+            return
+        path, _ = QFileDialog.getSaveFileName(self, "Export OBJ", "", "OBJ (*.obj)")
+        if path:
+            export_obj(self._project.model_tree, path)
+            self.statusBar().showMessage(f"Saved {Path(path).name}")
+
+    def _export_html(self) -> None:
+        from magnetflux.visualization.scene_export import export_html
+
+        path, _ = QFileDialog.getSaveFileName(self, "Export 3D HTML", "", "HTML (*.html)")
+        if not path:
+            return
+        try:
+            export_html(self._viewport, path)
+        except Exception as exc:  # noqa: BLE001 - surfaced to user
+            QMessageBox.critical(self, "Export failed", str(exc))
+            return
+        self.statusBar().showMessage(f"Saved {Path(path).name}")
+
+    def _export_mp4(self) -> None:
+        from magnetflux.visualization.scene_export import export_turntable_mp4
+
+        path, _ = QFileDialog.getSaveFileName(self, "Export MP4", "", "MP4 (*.mp4)")
+        if not path:
+            return
+        try:
+            export_turntable_mp4(self._viewport, path)
+        except Exception as exc:  # noqa: BLE001 - surfaced to user
+            QMessageBox.critical(self, "Export failed", str(exc))
+            return
+        self.statusBar().showMessage(f"Saved {Path(path).name}")
 
     # -- race-track analysis ---------------------------------------------- #
 
