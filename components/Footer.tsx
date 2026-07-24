@@ -1,6 +1,6 @@
 'use client';
 
-import { Youtube } from 'lucide-react';
+import { Youtube, Music2 } from 'lucide-react';
 import { footer } from '@/content/site';
 import { scrollToHash } from '@/lib/utils';
 
@@ -24,7 +24,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={s.label}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-line text-ink transition-colors hover:border-red hover:text-red"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-line text-ink transition-colors hover:border-gold hover:text-gold"
             >
               <Youtube size={18} />
             </a>
@@ -33,13 +33,15 @@ export default function Footer() {
 
         <div className="grid gap-10 text-sm md:grid-cols-4">
           <div>
-            <h3 className="font-display text-lg tracking-wide text-ink">{footer.address.name}</h3>
+            <h3 className="flex items-center gap-2 font-display text-xl font-semibold tracking-wide text-ink">
+              <Music2 size={16} className="text-gold" aria-hidden /> {footer.address.name}
+            </h3>
             <address className="mt-3 space-y-1 not-italic leading-relaxed text-faint">
               {footer.address.lines.map((line) => (
                 <p key={line}>{line}</p>
               ))}
               <p className="pt-2">
-                <a href={`mailto:${footer.address.email}`} className="text-muted hover:text-red">
+                <a href={`mailto:${footer.address.email}`} className="text-muted hover:text-gold">
                   {footer.address.email}
                 </a>
               </p>
@@ -51,7 +53,7 @@ export default function Footer() {
             <ul className="mt-3 space-y-2">
               {footer.quickLinks.map((l) => (
                 <li key={l.label}>
-                  <a href={l.href} onClick={(e) => onLink(e, l.href)} className="text-muted transition-colors hover:text-red">
+                  <a href={l.href} onClick={(e) => onLink(e, l.href)} className="text-muted transition-colors hover:text-gold">
                     {l.label}
                   </a>
                 </li>
@@ -64,7 +66,7 @@ export default function Footer() {
             <ul className="mt-3 space-y-2">
               {footer.legal.map((l) => (
                 <li key={l.label}>
-                  <a href={l.href} className="text-muted transition-colors hover:text-red">
+                  <a href={l.href} className="text-muted transition-colors hover:text-gold">
                     {l.label}
                   </a>
                 </li>
@@ -75,9 +77,9 @@ export default function Footer() {
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-widest2 text-faint">Explore</h4>
             <ul className="mt-3 space-y-2">
-              <li><a href="#compositions" onClick={(e) => onLink(e, '#compositions')} className="text-muted hover:text-red">Compositions</a></li>
-              <li><a href="#concerts" onClick={(e) => onLink(e, '#concerts')} className="text-muted hover:text-red">Concerts</a></li>
-              <li><a href="#facets" onClick={(e) => onLink(e, '#facets')} className="text-muted hover:text-red">Facets</a></li>
+              <li><a href="#compositions" onClick={(e) => onLink(e, '#compositions')} className="text-muted hover:text-gold">Compositions</a></li>
+              <li><a href="#concerts" onClick={(e) => onLink(e, '#concerts')} className="text-muted hover:text-gold">Concerts</a></li>
+              <li><a href="#facets" onClick={(e) => onLink(e, '#facets')} className="text-muted hover:text-gold">Facets</a></li>
             </ul>
           </div>
         </div>

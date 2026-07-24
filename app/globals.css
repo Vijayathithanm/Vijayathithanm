@@ -55,11 +55,11 @@ body {
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #e50914;
+  background: #C8A047;
 }
 
 :focus-visible {
-  outline: 2px solid #e50914;
+  outline: 2px solid #C8A047;
   outline-offset: 3px;
   border-radius: 2px;
 }

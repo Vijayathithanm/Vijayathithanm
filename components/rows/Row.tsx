@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Music4 } from 'lucide-react';
 import type { Title } from '@/content/site';
 import Card from './Card';
 
@@ -29,11 +29,14 @@ export default function Row({
   };
 
   return (
-    <section id={id} className="reveal group/row relative py-5" aria-label={heading}>
-      <div className="mx-auto max-w-content px-4 md:px-8">
-        <h2 className="mb-3 font-display text-xl tracking-wide text-ink md:text-2xl">
-          {heading}
-        </h2>
+    <section id={id} className="reveal group/row relative py-8 md:py-10" aria-label={heading}>
+      <div className="mx-auto max-w-content px-6 md:px-8">
+        <div className="mb-5 flex items-center gap-3">
+          <Music4 size={20} className="text-gold" aria-hidden />
+          <h2 className="font-display text-3xl font-semibold leading-none text-ink md:text-4xl">
+            {heading}
+          </h2>
+        </div>
       </div>
 
       <div className="relative">
@@ -57,7 +60,7 @@ export default function Row({
 
         <div
           ref={track}
-          className="no-scrollbar flex snap-x gap-2.5 overflow-x-auto px-4 pb-2 md:gap-3 md:px-8"
+          className="no-scrollbar flex snap-x gap-4 overflow-x-auto px-6 pb-2 md:gap-6 md:px-8"
         >
           {items.map((t) => (
             <Card key={t.id} title={t} variant={variant} />

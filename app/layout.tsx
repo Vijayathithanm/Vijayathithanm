@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
-import { Bebas_Neue, Inter } from 'next/font/google';
+import { Cormorant_Garamond, Inter } from 'next/font/google';
 import './globals.css';
 import { seo } from '@/content/site';
 
-/* Tall cinematic display face for big titles, clean sans for body. */
-const display = Bebas_Neue({
+/* Elegant high-contrast serif for headings; clean sans for body & UI. */
+const display = Cormorant_Garamond({
   subsets: ['latin'],
-  weight: '400',
+  weight: ['500', '600', '700'],
   variable: '--font-display',
   display: 'swap',
 });

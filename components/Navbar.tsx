@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Menu, X, ChevronDown, Search, Bell } from 'lucide-react';
+import { Menu, X, ChevronDown, Music2 } from 'lucide-react';
 import { nav } from '@/content/site';
 import { scrollToHash, cn } from '@/lib/utils';
 
@@ -58,17 +58,18 @@ export default function Navbar() {
       )}
     >
       <nav aria-label="Primary" className="mx-auto flex max-w-content items-center gap-6 px-4 py-3.5 md:px-8">
-        {/* Logo */}
+        {/* Wordmark */}
         <a
           href="#home"
           onClick={(e) => go(e, '#home')}
-          className="font-display text-2xl tracking-wide text-red md:text-3xl"
+          className="flex items-center gap-2 font-display text-2xl font-semibold leading-none tracking-wide text-ink md:text-3xl"
         >
-          ILAIYARAAJA
+          <Music2 size={20} className="text-gold" aria-hidden />
+          Ilaiyaraaja
         </a>
 
         {/* Desktop links */}
-        <ul className="ml-4 hidden items-center gap-5 lg:flex">
+        <ul className="ml-6 hidden items-center gap-6 lg:flex">
           {nav.map((item) =>
             item.children ? (
               <li key={item.label} className="relative" onMouseEnter={() => openNow(item.label)} onMouseLeave={closeSoon}>
@@ -77,7 +78,7 @@ export default function Navbar() {
                   aria-haspopup="true"
                   aria-expanded={openMenu === item.label}
                   onClick={() => setOpenMenu((m) => (m === item.label ? null : item.label))}
-                  className="flex items-center gap-1 text-sm text-ink transition-colors hover:text-red"
+                  className="flex items-center gap-1 text-sm text-ink transition-colors hover:text-gold"
                 >
                   {item.label}
                   <ChevronDown size={13} className="mt-0.5" aria-hidden />
@@ -90,7 +91,7 @@ export default function Navbar() {
                           role="menuitem"
                           href={child.href}
                           onClick={(e) => go(e, child.href)}
-                          className="block rounded px-3 py-2 text-sm text-ink transition-colors hover:bg-panel hover:text-red"
+                          className="block rounded px-3 py-2 text-sm text-ink transition-colors hover:bg-panel hover:text-gold"
                         >
                           {child.label}
                         </a>
@@ -104,7 +105,7 @@ export default function Navbar() {
                 <a
                   href={item.href}
                   onClick={(e) => go(e, item.href)}
-                  className="text-sm text-ink transition-colors hover:text-red"
+                  className="text-sm text-ink transition-colors hover:text-gold"
                 >
                   {item.label}
                 </a>
@@ -114,14 +115,14 @@ export default function Navbar() {
         </ul>
 
         {/* Right cluster */}
-        <div className="ml-auto flex items-center gap-4 text-ink">
-          <button aria-label="Search" className="hidden text-ink/80 transition-colors hover:text-red sm:block">
-            <Search size={18} />
-          </button>
-          <button aria-label="Notifications" className="hidden text-ink/80 transition-colors hover:text-red sm:block">
-            <Bell size={18} />
-          </button>
-          <span aria-hidden className="hidden h-7 w-7 rounded bg-gradient-to-br from-red to-gold sm:block" />
+        <div className="ml-auto flex items-center gap-5 text-ink">
+          <a
+            href="#latest-news"
+            onClick={(e) => go(e, '#latest-news')}
+            className="hidden text-xs font-semibold uppercase tracking-widest2 text-ink transition-colors hover:text-gold sm:block"
+          >
+            Newsletter
+          </a>
           <button
             type="button"
             className="lg:hidden"

@@ -27,11 +27,11 @@ const config: Config = {
         gold: '#C8A047',
       },
       fontFamily: {
-        display: ['var(--font-display)', 'Arial Narrow', 'sans-serif'],
+        display: ['var(--font-display)', 'Georgia', 'Cambria', 'serif'],
         sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
       },
       letterSpacing: {
-        widest2: '0.3em',
+        widest2: '0.32em',
       },
       maxWidth: {
         content: '90rem',

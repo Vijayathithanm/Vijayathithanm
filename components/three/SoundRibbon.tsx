@@ -48,7 +48,7 @@ export default function SoundRibbon({ segments = 96 }: { segments?: number }) {
       return new THREE.Line(geo, mat);
     };
     // Streaming-red top edge, warm gold bottom edge — glows on the black stage.
-    return { topLine: make('#E50914', 0.95), botLine: make('#C8A047', 0.8) };
+    return { topLine: make('#C8A047', 0.95), botLine: make('#C8A047', 0.8) };
   }, [rowCount]);
 
   useFrame((state) => {

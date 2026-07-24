@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import { X, Play, Plus, ThumbsUp } from 'lucide-react';
+import { X } from 'lucide-react';
 import type { Title } from '@/content/site';
 import Img from '@/components/ui/Img';
 
@@ -54,29 +54,18 @@ export function TitleModalProvider({ children }: { children: React.ReactNode }) 
               <button
                 onClick={close}
                 aria-label="Close"
-                className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-red"
+                className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-ink"
               >
                 <X size={18} />
               </button>
-              <div className="absolute bottom-5 left-6 right-6">
-                <h2 className="font-display text-4xl tracking-wide text-white drop-shadow-lg md:text-5xl">{title.title}</h2>
-                <div className="mt-4 flex flex-wrap items-center gap-3">
-                  <button className="flex items-center gap-2 rounded bg-white px-6 py-2 text-sm font-semibold text-black transition-colors hover:bg-white/80">
-                    <Play size={16} fill="currentColor" /> Play
-                  </button>
-                  <button aria-label="Add to list" className="flex h-9 w-9 items-center justify-center rounded-full border border-white/40 text-white transition-colors hover:border-white">
-                    <Plus size={16} />
-                  </button>
-                  <button aria-label="Rate" className="flex h-9 w-9 items-center justify-center rounded-full border border-white/40 text-white transition-colors hover:border-white">
-                    <ThumbsUp size={15} />
-                  </button>
-                </div>
+              <div className="absolute bottom-6 left-7 right-7">
+                <h2 className="font-display text-5xl font-semibold leading-none text-white drop-shadow-lg md:text-6xl">{title.title}</h2>
               </div>
             </div>
             {/* Details */}
-            <div className="p-6 md:p-7">
-              <p className="mb-3 text-sm font-medium text-gold">{title.meta}</p>
-              <p className="text-sm leading-relaxed text-muted md:text-base">{title.description}</p>
+            <div className="p-7 md:p-9">
+              <p className="mb-4 text-xs font-semibold uppercase tracking-widest2 text-gold">{title.meta}</p>
+              <p className="text-base leading-relaxed text-muted">{title.description}</p>
             </div>
           </div>
         </div>
