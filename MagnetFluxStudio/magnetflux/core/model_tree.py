@@ -27,6 +27,7 @@ class Body:
         mesh: Triangulated surface of the solid [m].
         visible: Whether the body is shown in the viewport.
         color: RGB display colour, each channel in ``[0, 1]``.
+        opacity: Display opacity in ``[0, 1]`` (1 = solid, <1 = see-through).
         material_id: Id of the assigned material (Milestone 2), or ``None``.
         source_file: Originating CAD file, for provenance.
     """
@@ -36,6 +37,7 @@ class Body:
     mesh: TriangleMesh
     visible: bool = True
     color: tuple[float, float, float] = (0.7, 0.7, 0.75)
+    opacity: float = 1.0
     material_id: str | None = None
     source_file: str | None = None
 
@@ -112,6 +114,9 @@ class ModelTree:
 
     def set_visible(self, body_id: int, visible: bool) -> None:
         self._bodies[body_id].visible = visible
+
+    def set_opacity(self, body_id: int, opacity: float) -> None:
+        self._bodies[body_id].opacity = float(min(1.0, max(0.0, opacity)))
 
     def set_color(self, body_id: int, color: tuple[float, float, float]) -> None:
         rgb = np.clip(np.asarray(color, dtype=float), 0.0, 1.0)

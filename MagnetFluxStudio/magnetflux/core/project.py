@@ -60,6 +60,7 @@ class Project:
                     "name": b.name,
                     "visible": b.visible,
                     "color": list(b.color),
+                    "opacity": b.opacity,
                     "material_id": b.material_id,
                     "source_file": b.source_file,
                 }
@@ -104,6 +105,7 @@ class Project:
                 # Restore persisted state (id is reassigned by the tree; remap).
                 body.visible = entry.get("visible", True)
                 body.color = tuple(entry.get("color", (0.7, 0.7, 0.75)))
+                body.opacity = entry.get("opacity", 1.0)
                 body.material_id = entry.get("material_id")
 
             unit = LengthUnit(manifest.get("display_length_unit", "mm"))

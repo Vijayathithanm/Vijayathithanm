@@ -58,12 +58,19 @@ class Viewport(QtInteractor):
         actor = self.add_mesh(
             _to_polydata(body),
             color=body.color,
+            opacity=body.opacity,
             show_edges=False,
             smooth_shading=True,
             name=f"body_{body.id}",
         )
         actor.SetVisibility(body.visible)
         self._actors[body.id] = actor
+
+    def set_body_opacity(self, body_id: int, opacity: float) -> None:
+        actor = self._actors.get(body_id)
+        if actor is not None:
+            actor.GetProperty().SetOpacity(float(min(1.0, max(0.0, opacity))))
+            self.render()
 
     def set_body_visible(self, body_id: int, visible: bool) -> None:
         actor = self._actors.get(body_id)
