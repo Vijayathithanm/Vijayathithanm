@@ -197,7 +197,9 @@ class MainWindow(QMainWindow):
         g.add_button("Point", lambda: self._set_selection_mode("point"))
         g = geo.add_group("Visibility")
         g.add_button("Show All", lambda: self._set_all_visible(True))
-        g.add_button("Hide All", lambda: self._set_all_visible(False))
+        g.add_button("Isolate", self._isolate_selected)
+        g.add_button("Hide Selected", self._hide_selected)
+        g.add_button("Transparent", self._toggle_transparency)
         g = geo.add_group("Modify")
         g.add_button("Polar Array", self._polar_array)
         g.add_button("Mirror", self._mirror_body)
@@ -549,7 +551,45 @@ class MainWindow(QMainWindow):
 
     def _set_all_visible(self, visible: bool) -> None:
         self._tree_widget.set_all_visible(visible)
+        # Restore full opacity when showing everything again.
+        if visible:
+            for body in self._project.model_tree:
+                self._project.model_tree.set_opacity(body.id, 1.0)
+                self._viewport.set_body_opacity(body.id, 1.0)
         self.statusBar().showMessage("Show all" if visible else "Hide all")
+
+    def _isolate_selected(self) -> None:
+        """Show only the selected body (hide the rest) -- e.g. an inner magnet."""
+        body = self._selected_body()
+        if body is None:
+            return
+        for other in self._project.model_tree:
+            visible = other.id == body.id
+            self._project.model_tree.set_visible(other.id, visible)
+            self._viewport.set_body_visible(other.id, visible)
+        self._tree_widget.set_model_tree(self._project.model_tree)
+        self.statusBar().showMessage(f"Isolated {body.name}")
+
+    def _hide_selected(self) -> None:
+        """Hide the selected body -- e.g. the casing, to reach inner magnets."""
+        body = self._selected_body()
+        if body is None:
+            return
+        self._project.model_tree.set_visible(body.id, False)
+        self._viewport.set_body_visible(body.id, False)
+        self._tree_widget.set_model_tree(self._project.model_tree)
+        self.statusBar().showMessage(f"Hid {body.name}")
+
+    def _toggle_transparency(self) -> None:
+        """Toggle the selected body between solid and see-through (casing)."""
+        body = self._selected_body()
+        if body is None:
+            return
+        new_opacity = 1.0 if body.opacity < 1.0 else 0.25
+        self._project.model_tree.set_opacity(body.id, new_opacity)
+        self._viewport.set_body_opacity(body.id, new_opacity)
+        state = "transparent" if new_opacity < 1.0 else "solid"
+        self.statusBar().showMessage(f"{body.name}: {state}")
 
     def _polar_array(self) -> None:
         from PySide6.QtWidgets import QInputDialog
