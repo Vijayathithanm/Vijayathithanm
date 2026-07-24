@@ -41,14 +41,13 @@ export default function SoundRibbon({ segments = 96 }: { segments?: number }) {
 
   // Two continuous gold edge lines built imperatively (avoids JSX <line> quirks).
   const { topLine, botLine } = useMemo(() => {
-    const make = (color: string, opacity: number) => {
+    const make = (opacity: number) => {
       const geo = new THREE.BufferGeometry();
       geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(rowCount * 3), 3));
-      const mat = new THREE.LineBasicMaterial({ color, transparent: true, opacity });
+      const mat = new THREE.LineBasicMaterial({ color: '#C8A047', transparent: true, opacity });
       return new THREE.Line(geo, mat);
     };
-    // Streaming-red top edge, warm gold bottom edge — glows on the black stage.
-    return { topLine: make('#C8A047', 0.95), botLine: make('#C8A047', 0.8) };
+    return { topLine: make(0.9), botLine: make(0.55) };
   }, [rowCount]);
 
   useFrame((state) => {
@@ -95,8 +94,8 @@ export default function SoundRibbon({ segments = 96 }: { segments?: number }) {
   return (
     <group ref={group} position={[0, 0.55, 0]}>
       <mesh geometry={geometry} castShadow receiveShadow>
-        {/* Matte charcoal ribbon that reads cleanly on the white stage */}
-        <meshStandardMaterial color="#1A1A1A" roughness={0.8} metalness={0.1} side={THREE.DoubleSide} />
+        {/* Matte charcoal ribbon surface */}
+        <meshStandardMaterial color="#1A1A1A" roughness={0.85} metalness={0.05} side={THREE.DoubleSide} />
       </mesh>
       <primitive object={topLine} />
       <primitive object={botLine} />

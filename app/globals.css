@@ -3,12 +3,14 @@
 @tailwind utilities;
 
 /* ─────────────────────────────────────────────────────────────
-   Ilaiyaraaja — bright cinematic theme
-   White canvas, near-black text, streaming-red + gold accents.
+   Ilaiyaraaja — global styles
+   Pure-white, gallery-minimal. Charcoal ink, a single gold accent.
    ───────────────────────────────────────────────────────────── */
 
 :root {
-  color-scheme: light;
+  --paper: 255 255 255;
+  --ink: 26 26 26;
+  --gold: 200 160 71;
 }
 
 html {
@@ -16,6 +18,8 @@ html {
   -webkit-text-size-adjust: 100%;
   background: #ffffff;
 }
+
+/* Lenis smooth-scroll hooks (JS falls back to native scroll if disabled) */
 html.lenis,
 html.lenis body {
   height: auto;
@@ -30,44 +34,35 @@ body {
 }
 
 ::selection {
-  background: rgba(229, 9, 20, 0.22);
-  color: #141414;
+  background: rgb(var(--gold) / 0.22);
+  color: rgb(var(--ink));
 }
 
-/* Hide horizontal scrollbars on the content rows */
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-/* Page scrollbar */
-::-webkit-scrollbar {
-  width: 10px;
-}
-::-webkit-scrollbar-track {
-  background: #ffffff;
-}
-::-webkit-scrollbar-thumb {
-  background: #d6d6d6;
-  border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #C8A047;
+/* ── Fixed 3D stage sits behind everything ─────────────────── */
+.scene-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none; /* per-object interaction re-enabled in the Canvas */
 }
 
-:focus-visible {
-  outline: 2px solid #C8A047;
-  outline-offset: 3px;
-  border-radius: 2px;
+/* Content flows above the stage. It is transparent so the white 3D
+   canvas shows through as one continuous surface.
+   `pointer-events: none` lets the cursor reach 3D objects in the gaps;
+   individual interactive elements opt back in via `.interactive`. */
+.content-layer {
+  position: relative;
+  z-index: 10;
+  pointer-events: none;
+}
+.interactive {
+  pointer-events: auto;
 }
 
-/* Reveal-on-scroll */
+/* ── Reveal-on-scroll (IntersectionObserver toggles .is-visible) ── */
 .reveal {
   opacity: 0;
-  transform: translateY(26px);
+  transform: translateY(28px);
   transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: opacity, transform;
 }
@@ -76,18 +71,29 @@ body {
   transform: none;
 }
 
-/* Gradient scrims — fade imagery into the white canvas so dark text reads. */
-.scrim-bottom {
-  background: linear-gradient(to top, #ffffff 4%, rgba(255, 255, 255, 0.65) 38%, rgba(255, 255, 255, 0) 72%);
+/* ── Thin scrollbar ─────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 9px;
 }
-.scrim-left {
-  background: linear-gradient(to right, #ffffff 0%, rgba(255, 255, 255, 0.82) 34%, rgba(255, 255, 255, 0) 68%);
+::-webkit-scrollbar-track {
+  background: #ffffff;
 }
-/* Darker scrim used on top of imagery inside the modal header for white text. */
-.scrim-media {
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 4%, rgba(0, 0, 0, 0.35) 40%, rgba(0, 0, 0, 0) 75%);
+::-webkit-scrollbar-thumb {
+  background: #dcdcdc;
+  border-radius: 9px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #c8a047;
 }
 
+/* ── Focus ring for keyboard users ──────────────────────────── */
+:focus-visible {
+  outline: 2px solid rgb(var(--gold));
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ── Reduced motion: freeze non-essential animation everywhere ── */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
-import { Cormorant_Garamond, Inter } from 'next/font/google';
+import { Playfair_Display, Inter } from 'next/font/google';
 import './globals.css';
 import { seo } from '@/content/site';
 
-/* Elegant high-contrast serif for headings; clean sans for body & UI. */
-const display = Cormorant_Garamond({
+/* Bold display serif for headings, clean sans for body. */
+const display = Playfair_Display({
   subsets: ['latin'],
-  weight: ['500', '600', '700'],
+  weight: ['600', '700', '800', '900'],
   variable: '--font-display',
   display: 'swap',
 });
